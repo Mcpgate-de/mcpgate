@@ -1,0 +1,8 @@
+# Environment files with real credentials
+.env
+
+# Redis data
+redis-data/
+
+# macOS
+.DS_Store

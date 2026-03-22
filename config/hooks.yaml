@@ -1,0 +1,33 @@
+# ==========================================================================
+# mcpgate AI Gateway — Hook Configuration
+# ==========================================================================
+# Hooks run before (pre) or after (post) every tool call.
+# They can block, transform, enrich, or audit AI actions.
+#
+# This is a starter config — customize to your needs.
+# ==========================================================================
+
+version: 1
+
+settings:
+  slow_hook_threshold_ms: 2000
+
+pre_hooks:
+  # Example: Require confirmation for destructive write actions
+  # google_destructive_confirmation:
+  #   description: "Require confirmation for destructive Google Workspace actions"
+  #   handler: "src.mcp.hooks.guards.require_explicit_confirmation_for_destructive_google_actions"
+  #   match:
+  #     tool_name: "google_workspace_write_actions"
+  #   order: 10
+  #   enabled: true
+
+post_hooks:
+  # Example: Normalize auth_required responses across services
+  normalize_auth_required:
+    description: "Normalize auth_required payload shape for action tools"
+    handler: "src.mcp.hooks.policy_hooks.normalize_auth_required_response"
+    match:
+      tool_name: "*_actions"
+    order: 10
+    enabled: true
