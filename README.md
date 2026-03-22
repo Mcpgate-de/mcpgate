@@ -32,7 +32,7 @@ curl http://localhost:3001/health
 
 ### Claude — Company-wide (recommended)
 
-Configure once for your entire organization at **claude.ai → Admin → Integrations → MCP Servers**. Every team member gets the gateway automatically in every Claude session — no individual setup needed.
+Configure once for your entire organization at [**claude.ai/admin-settings/connectors**](https://claude.ai/admin-settings/connectors). Every team member gets the gateway automatically in every Claude session — no individual setup needed.
 
 ```
 Name: mcpgate
