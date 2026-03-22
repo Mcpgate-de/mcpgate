@@ -56,7 +56,7 @@ If you prefer per-user setup, add to your Claude Code MCP config:
 
 ### ChatGPT
 
-ChatGPT supports MCP natively. Add the gateway URL in your ChatGPT settings. Supports read/write separation with user consent per action.
+Add mcpgate as an App in ChatGPT. Available in every conversation with read/write separation and user consent per action.
 
 ## Configuration
 
