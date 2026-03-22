@@ -219,14 +219,15 @@ post_hooks:
   # After creating a merge request, checks if a Jira ticket is referenced.
   # If not, adds a reminder to the response so the AI links it.
 
-  # ── Cross-service automation: Desk booking → Office preheating ─────────
+  # ── Cross-service automation: Desk booking → Scheduled preheating ──────
   #
-  # When someone books a desk through Joan, this hook triggers
-  # Home Assistant to preheat the office zone before they arrive.
-  # Cancel the booking — heating gets cancelled too.
+  # When someone books a desk through Joan for tomorrow morning, this hook
+  # schedules a heating job via Home Assistant — the office zone warms up
+  # before they arrive. Cancel the booking — the scheduled job gets cancelled too.
+  # This is a cross-service post-hook: Joan → Scheduler → Home Assistant.
 
   joan_heating_sync:
-    description: "Sync heating scheduler for Joan booking/cancel actions"
+    description: "Schedule heating jobs for Joan desk bookings (cross-service)"
     handler: "src.mcp.hooks.joan_hooks.sync_heating_job_for_joan_writes"
     match:
       tool_name: "joan_write_actions"
