@@ -127,11 +127,13 @@ Hooks are configured in `config/tool_hooks.yaml`. The quickstart includes a prod
 - Missing Jira ticket reminders on MRs
 - Jira transition prerequisite hints
 
-To add your own hook, add an entry to `config/tool_hooks.yaml` and restart:
+All hooks are configured in `config/tool_hooks.yaml`. Enable, disable, or reorder them by editing the file and restarting:
 
 ```bash
 docker compose restart ai-gateway
 ```
+
+The gateway ships with hooks for common patterns (format conversion, policy guards, cross-service automation). For custom requirements, contact us — we build the hook and ship it in the next image update.
 
 ## Customization
 
