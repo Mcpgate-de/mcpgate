@@ -1,10 +1,27 @@
 # ==========================================================================
 # mcpgate AI Gateway — Hook Configuration
 # ==========================================================================
+#
 # Hooks run before (pre) or after (post) every tool call.
 # They can block, transform, enrich, or audit AI actions.
 #
-# This is a starter config — customize to your needs.
+# HOOK TYPES:
+#   pre_hooks  — Run BEFORE the action executes.
+#                Use for: validation, blocking, confirmation, input transformation.
+#
+#   post_hooks — Run AFTER the action executes.
+#                Use for: response enrichment, notifications, audit logging.
+#
+# FIELDS:
+#   description  — Human-readable explanation (shown in admin dashboard)
+#   handler      — Python function path that implements the hook logic
+#   match        — Which tool/action triggers this hook
+#     tool_name  — Glob pattern: "slack_write_actions", "jira_*", "*_actions"
+#     params     — Optional: only trigger for specific actions
+#       action   — e.g. "create_issue", "transition_issue"
+#   order        — Execution order (lower = runs first)
+#   enabled      — true/false toggle without removing the config
+#
 # ==========================================================================
 
 version: 1
@@ -12,22 +29,202 @@ version: 1
 settings:
   slow_hook_threshold_ms: 2000
 
+
 pre_hooks:
-  # Example: Require confirmation for destructive write actions
-  # google_destructive_confirmation:
-  #   description: "Require confirmation for destructive Google Workspace actions"
-  #   handler: "src.mcp.hooks.guards.require_explicit_confirmation_for_destructive_google_actions"
-  #   match:
-  #     tool_name: "google_workspace_write_actions"
-  #   order: 10
-  #   enabled: true
+
+  # ── Policy: Require confirmation for destructive actions ────────────────
+  #
+  # Prevents the AI from deleting files, removing pages, or making
+  # irreversible changes without explicit user confirmation.
+
+  google_destructive_confirmation:
+    description: "Require confirmation for destructive Google Workspace actions"
+    handler: "src.mcp.hooks.guards.require_explicit_confirmation_for_destructive_google_actions"
+    match:
+      tool_name: "google_workspace_write_actions"
+    order: 10
+    enabled: true
+
+  notion_destructive_confirmation:
+    description: "Require confirmation for destructive Notion actions"
+    handler: "src.mcp.hooks.guards.require_explicit_confirmation_for_destructive_notion_actions"
+    match:
+      tool_name: "notion_write_actions"
+    order: 15
+    enabled: true
+
+  slack_destructive_confirmation:
+    description: "Require confirmation for Slack write actions"
+    handler: "src.mcp.hooks.guards.require_explicit_confirmation_for_destructive_slack_actions"
+    match:
+      tool_name: "slack_write_actions"
+    order: 16
+    enabled: true
+
+
+  # ── Enrichment: Auto-convert Markdown to service-native formats ─────────
+  #
+  # AI writes Markdown — hooks convert to the format each service expects.
+  # No need to teach the AI about Jira ADF or GitLab-flavored markdown.
+
+  jira_markdown_to_adf:
+    description: "Convert markdown description/comment to ADF for Jira API v3"
+    handler: "src.mcp.hooks.jira_hooks.convert_markdown_to_adf"
+    match:
+      tool_name: "jira_write_actions"
+    enabled: true
+
+  gitlab_normalize_markdown:
+    description: "Fix literal \\n from AI clients in GitLab markdown fields"
+    handler: "src.mcp.hooks.gitlab_hooks.normalize_gitlab_markdown"
+    match:
+      tool_name: "gitlab_write_actions"
+    order: 15
+    enabled: true
+
+  slack_normalize_text:
+    description: "Fix literal \\n from AI clients in Slack text fields"
+    handler: "src.mcp.hooks.slack_hooks.normalize_slack_text"
+    match:
+      tool_name: "slack_write_actions"
+    order: 15
+    enabled: true
+
+
+  # ── Enrichment: Auto-link Jira tickets in GitLab MRs ───────────────────
+  #
+  # When the AI creates a merge request and the title contains a Jira key
+  # (e.g. PBE-123), the hook auto-appends the Jira URL to the description.
+
+  gitlab_mr_jira_reference:
+    description: "Auto-append Jira URL to MR description when ticket key detected"
+    handler: "src.mcp.hooks.gitlab_hooks.enrich_mr_with_jira_reference"
+    match:
+      tool_name: "gitlab_write_actions"
+      params:
+        action: "create_merge_request"
+    order: 50
+    enabled: true
+
+
+  # ── Policy: Guard API endpoints ─────────────────────────────────────────
+  #
+  # Restrict generic api_* actions to allowed endpoint prefixes.
+  # Prevents the AI from hitting arbitrary API endpoints.
+
+  notion_api_endpoint_guard:
+    description: "Restrict Notion api_* actions to allowed endpoint prefixes"
+    handler: "src.mcp.hooks.policy_hooks.guard_notion_api_endpoint"
+    match:
+      tool_name: "notion_*_actions"
+    order: 16
+    enabled: true
+
+  metabase_api_endpoint_guard:
+    description: "Restrict Metabase api_* endpoints to preserve read/write split"
+    handler: "src.mcp.hooks.policy_hooks.guard_metabase_api_endpoint"
+    match:
+      tool_name: "metabase_*_actions"
+    order: 17
+    enabled: true
+
+
+  # ── Enrichment: Jira issue templates ────────────────────────────────────
+  #
+  # Auto-enriches new Jira issues with project-specific description templates.
+
+  jira_description_enrichment:
+    description: "Enrich Jira issue descriptions with project-specific templates"
+    handler: "src.mcp.hooks.jira_hooks.enrich_issue_description"
+    match:
+      tool_name: "jira_write_actions"
+      params:
+        action: "create_issue"
+    order: 19
+    enabled: true
+
+
+  # ── Policy: Jira transition prerequisites ───────────────────────────────
+  #
+  # Blocks ticket transitions when workflow prerequisites are not met
+  # (e.g. comment required before moving to "Done").
+
+  jira_transition_prerequisites_guard:
+    description: "Block transition if workflow prerequisites not met"
+    handler: "src.mcp.hooks.jira_hooks.check_transition_prerequisites"
+    match:
+      tool_name: "jira_write_actions"
+      params:
+        action: "transition_issue"
+    order: 20
+    enabled: true
+
 
 post_hooks:
-  # Example: Normalize auth_required responses across services
+
+  # ── Normalize auth responses ────────────────────────────────────────────
+  #
+  # Ensures all services return auth_required errors in the same format.
+  # Without this, each service has slightly different error shapes.
+
   normalize_auth_required:
     description: "Normalize auth_required payload shape for action tools"
     handler: "src.mcp.hooks.policy_hooks.normalize_auth_required_response"
     match:
       tool_name: "*_actions"
     order: 10
+    enabled: true
+
+
+  # ── Cap oversized responses ─────────────────────────────────────────────
+  #
+  # Some services return huge payloads (e.g. Metabase with 10k rows).
+  # These hooks cap the response to prevent token waste and timeouts.
+
+  metabase_response_size_cap:
+    description: "Cap large Metabase row payloads"
+    handler: "src.mcp.hooks.policy_hooks.cap_metabase_response_size"
+    match:
+      tool_name: "metabase_read_actions"
+    order: 20
+    enabled: true
+
+  notion_response_size_cap:
+    description: "Cap large Notion list payloads"
+    handler: "src.mcp.hooks.policy_hooks.cap_notion_response_size"
+    match:
+      tool_name: "notion_read_actions"
+    order: 21
+    enabled: true
+
+
+  # ── Enrichment: Jira transition hints ───────────────────────────────────
+  #
+  # Adds prerequisite hints to get_transitions responses so the AI knows
+  # what's needed before attempting a transition.
+
+  jira_transitions_prerequisites:
+    description: "Enrich transitions with prerequisite hints from workflows"
+    handler: "src.mcp.hooks.jira_hooks.enrich_transitions_with_prerequisites"
+    match:
+      tool_name: "jira_read_actions"
+      params:
+        action: "get_transitions"
+    order: 50
+    enabled: true
+
+
+  # ── Notification: MR without Jira ticket ────────────────────────────────
+  #
+  # After creating a merge request, checks if a Jira ticket is referenced.
+  # If not, adds a reminder to the response so the AI links it.
+
+  gitlab_mr_jira_reminder:
+    description: "Remind when MR has no Jira ticket reference"
+    handler: "src.mcp.hooks.gitlab_hooks.remind_jira_link"
+    match:
+      tool_name: "gitlab_write_actions"
+      params:
+        action: "create_merge_request"
+    order: 50
     enabled: true
