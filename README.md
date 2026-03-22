@@ -56,7 +56,7 @@ If you prefer per-user setup, add to your Claude Code MCP config:
 
 ### ChatGPT
 
-Configure as a Custom GPT with Actions pointing to your gateway's OpenAPI endpoint. Supports read/write separation with user consent per action.
+ChatGPT supports MCP natively. Add the gateway URL in your ChatGPT settings. Supports read/write separation with user consent per action.
 
 ## Configuration
 
