@@ -68,15 +68,15 @@ Add mcpgate as an App in ChatGPT. Available in every conversation with read/writ
 ## Architecture
 
 ```
-┌─────────────┐     ┌──────────────────┐     ┌─────────────┐
-│  Claude /    │     │                  │     │  Slack      │
-│  ChatGPT /  │────▶│   mcpgate        │────▶│  Jira       │
-│  Any MCP    │     │                  │     │  GitLab     │
-│  Agent      │◀────│  pre_hooks ──▶   │◀────│  Google     │
-│             │     │  post_hooks ──▶  │     │  Notion     │
-└─────────────┘     └──────────────────┘     │  Figma      │
-                                             │  ...        │
-                                             └─────────────┘
+┌──────────────┐     ┌───────────────────┐     ┌──────────────┐
+│  Claude /    │     │                   │     │  Slack       │
+│  ChatGPT /  │────▶│    mcpgate        │────▶│  Jira        │
+│  Any MCP    │     │                   │     │  GitLab      │
+│  Agent      │◀────│  pre_hooks  ──▶   │◀────│  Google      │
+│             │     │  post_hooks ──▶   │     │  Notion      │
+└──────────────┘     └───────────────────┘     │  Figma       │
+                                               │  ...         │
+                                               └──────────────┘
 ```
 
 Every request flows through the hook pipeline:
