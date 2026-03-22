@@ -30,9 +30,18 @@ curl http://localhost:3001/health
 
 ## Connect your AI
 
-### Claude Code
+### Claude — Company-wide (recommended)
 
-Add to your Claude Code MCP config:
+Configure once for your entire organization at **claude.ai → Admin → Integrations → MCP Servers**. Every team member gets the gateway automatically in every Claude session — no individual setup needed.
+
+```
+Name: mcpgate
+URL:  https://your-gateway-url/mcp
+```
+
+### Claude Code — Individual
+
+If you prefer per-user setup, add to your Claude Code MCP config:
 
 ```json
 {
@@ -47,7 +56,7 @@ Add to your Claude Code MCP config:
 
 ### ChatGPT
 
-Configure as a Custom GPT with Actions pointing to your gateway's OpenAPI endpoint.
+Configure as a Custom GPT with Actions pointing to your gateway's OpenAPI endpoint. Supports read/write separation with user consent per action.
 
 ## Configuration
 
