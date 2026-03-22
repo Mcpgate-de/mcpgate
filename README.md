@@ -121,6 +121,7 @@ Hooks are configured in `config/tool_hooks.yaml`. The quickstart includes a prod
 - Jira issue description templates
 
 **Post-processing hooks**:
+- Cross-service automation (e.g. desk booking → preheat office via Home Assistant)
 - Response size capping (Metabase, Notion)
 - Auth error normalization
 - Missing Jira ticket reminders on MRs
