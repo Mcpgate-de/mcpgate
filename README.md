@@ -166,3 +166,9 @@ The gateway image is updated regularly. Pull to get the latest features and fixe
 ## Support
 
 Contact hello@mcpgate.de
+
+## License
+
+This repository is licensed under the Business Source License 1.1. See [LICENSE](LICENSE).
+
+Personal use and internal business use are permitted, including production use for your own operations. Offering the gateway itself to third parties as a hosted service, commercial product, or managed service requires a separate commercial license. See [COMMERCIAL.md](COMMERCIAL.md).
