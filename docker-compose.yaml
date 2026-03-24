@@ -26,7 +26,8 @@ services:
       retries: 3
       start_period: 15s
     volumes:
-      - ./config:/config:ro
+      - ./config/access_control.yaml:/app/config/access_control.yaml:ro
+      - ./config/tool_hooks.yaml:/app/config/tool_hooks.yaml:ro
 
   redis:
     image: redis:7-alpine

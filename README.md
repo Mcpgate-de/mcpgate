@@ -10,6 +10,7 @@ A single MCP endpoint that connects any AI to your company tools — with policy
 
 - Docker + Docker Compose
 - Registry access (provided during onboarding)
+- Google Workspace account (for sign-in — currently the only supported SSO provider)
 - At least one service to connect (e.g. Google Workspace, Slack, Jira)
 
 ## Setup
@@ -27,10 +28,14 @@ docker login registry.gitlab.com
 cp .env.example .env
 # Edit .env — see comments in the file for what each variable does
 
-# 4. Start
+# 4. Configure access control
+# Edit config/access_control.yaml — set your company domain
+# Example: replace "example.com" with "yourcompany.com"
+
+# 5. Start
 docker compose up -d
 
-# 5. Verify
+# 6. Verify
 curl http://localhost:3001/health
 # Should return {"status": "ok"}
 ```
@@ -86,6 +91,19 @@ Every request flows through the hook pipeline:
 3. Action executes against the service API
 4. **Post-hooks** run: cap responses, add hints, notify
 
+## Authentication
+
+The gateway requires users to sign in before connecting services.
+
+| Method | Status | Use case |
+|--------|--------|----------|
+| **Google SSO** | Supported | Users with Google Workspace accounts |
+| **Magic Links** | Supported | Email-based login for external collaborators |
+| Microsoft / Azure AD | Planned | — |
+| SAML 2.0 / OIDC | Planned | — |
+
+Configure allowed domains in `config/access_control.yaml`. Only users from listed domains (or individually invited guests) can access the gateway.
+
 ## Services
 
 Enable a service by providing its credentials in `.env`. Only services with valid credentials activate. The gateway auto-detects what's configured.
@@ -102,6 +120,7 @@ Enable a service by providing its credentials in `.env`. Only services with vali
 | **Amplitude** | Charts, active users, real-time analytics |
 | **Metabase** | BI dashboards, SQL queries, schema exploration |
 | **Sentry** | Error tracking, issue queries |
+| **WordPress** | Posts, pages, Yoast SEO metadata (multi-instance) |
 | **Home Assistant** | Office sensors, heating control |
 | **Joan** | Desk & meeting room booking |
 

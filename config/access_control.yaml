@@ -1,0 +1,66 @@
+# Access Control Configuration — Template for mcpgate deployments
+#
+# Copy this file to access_control.yaml and customize for your organization.
+#
+# Roles:
+#   internal    - Full access to all connected services
+#   external    - Limited access (no Google Workspace, internal tools)
+#   viewer      - Read-only access to selected services
+#
+# Auth methods:
+#   google_sso  - Google Sign-In (for domains with Google Workspace)
+#   magic_link  - Email-based login link (for any email address)
+#
+# Guest emails are stored as SHA256 hashes to protect PII.
+# Generate a hash: python3 -c "import hashlib; print(hashlib.sha256('user@example.com'.encode()).hexdigest())"
+
+version: 2
+
+# Domain-based access — add your company domain(s) here
+domains:
+  "example.com":
+    role: internal
+    auth_method: google_sso
+
+# Guest access — invite external collaborators by email hash
+guests: []
+#  - email_hash: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+#    role: external
+#    auth_method: magic_link
+#    invited_by: "admin@example.com"
+#    note: "External consultant"
+
+# Role → service access mapping
+roles:
+  internal:
+    allowed_services:
+      - google_workspace
+      - jira
+      - gitlab
+      - slack
+      - notion
+      - figma
+      - grafana
+      - wordpress
+      - amplitude
+      - sentry
+  external:
+    allowed_services:
+      - jira
+      - gitlab
+      - slack
+      - notion
+      - figma
+  viewer:
+    allowed_services:
+      - jira
+      - gitlab
+
+# Domain mappings (optional) — map alternative domains to primary
+# Example: users signing in as user@company.io are treated as user@company.com
+domain_mappings: {}
+#  "company.io": "company.com"
+
+# Admin users — full access + admin dashboard
+admin_users: []
+#  - "admin@example.com"
