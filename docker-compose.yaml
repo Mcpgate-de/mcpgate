@@ -8,6 +8,9 @@
 # Ports:
 #   3000 — MCP protocol (Claude/ChatGPT connects here)
 #   3001 — Dashboard, OAuth callbacks, health check
+#
+# Hot-reload config without restart:
+#   curl -X POST http://localhost:3001/admin/reload
 
 services:
   ai-gateway:
