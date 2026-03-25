@@ -8,7 +8,7 @@
 #   viewer      - Read-only access to selected services
 #
 # Auth methods:
-#   google_sso  - Google Sign-In (for domains with Google Workspace)
+#   sso         - Single Sign-On via OIDC (Google, Microsoft, Okta, Keycloak, ...)
 #   magic_link  - Email-based login link (for any email address)
 #
 # Guest emails are stored as SHA256 hashes to protect PII.
@@ -20,7 +20,7 @@ version: 2
 domains:
   "example.com":
     role: internal
-    auth_method: google_sso
+    auth_method: sso
 
 # Guest access — invite external collaborators by email hash
 guests: []
