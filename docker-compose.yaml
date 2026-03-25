@@ -28,9 +28,15 @@ services:
       timeout: 5s
       retries: 3
       start_period: 15s
+    environment:
+      # Tell admin dashboard to persist imports to the mounted data dir
+      - EXTENSIONS_DATA_DIR=/app/data/extensions
     volumes:
-      - ./config/access_control.yaml:/app/config/access_control.yaml:ro
-      - ./config/tool_hooks.yaml:/app/config/tool_hooks.yaml:ro
+      # Config files (editable, changes applied via POST /admin/reload)
+      - ./config/access_control.yaml:/app/config/access_control.yaml
+      - ./config/tool_hooks.yaml:/app/config/tool_hooks.yaml
+      # Persistent data dir — admin dashboard saves OpenAPI imports here
+      - gateway-data:/app/data
 
   redis:
     image: redis:7-alpine
@@ -40,4 +46,5 @@ services:
     restart: unless-stopped
 
 volumes:
+  gateway-data:
   redis-data:
