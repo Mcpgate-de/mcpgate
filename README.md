@@ -10,7 +10,7 @@ A single MCP endpoint that connects any AI to your company tools — with policy
 
 - Docker + Docker Compose
 - Registry access (provided during onboarding)
-- Google Workspace account (for sign-in — currently the only supported SSO provider)
+- An OIDC identity provider for SSO (Google Workspace, Microsoft Entra ID, Okta, Keycloak, ...)
 - At least one service to connect (e.g. Google Workspace, Slack, Jira)
 
 ## Setup
@@ -97,10 +97,8 @@ The gateway requires users to sign in before connecting services.
 
 | Method | Status | Use case |
 |--------|--------|----------|
-| **Google SSO** | Supported | Users with Google Workspace accounts |
+| **OIDC SSO** | Supported | Google, Microsoft, Okta, Keycloak, Auth0, any OIDC provider |
 | **Magic Links** | Supported | Email-based login for external collaborators |
-| Microsoft / Azure AD | Planned | — |
-| SAML 2.0 / OIDC | Planned | — |
 
 Configure allowed domains in `config/access_control.yaml`. Only users from listed domains (or individually invited guests) can access the gateway.
 
@@ -146,13 +144,13 @@ Hooks are configured in `config/tool_hooks.yaml`. The quickstart includes a prod
 - Missing Jira ticket reminders on MRs
 - Jira transition prerequisite hints
 
-All hooks are configured in `config/tool_hooks.yaml`. Enable, disable, or reorder them by editing the file and restarting:
+All hooks are configured in `config/tool_hooks.yaml`. Enable, disable, or reorder them by editing the file and reloading:
 
 ```bash
-docker compose restart ai-gateway
+curl -X POST http://localhost:3001/admin/reload
 ```
 
-The gateway ships with hooks for common patterns (format conversion, policy guards, cross-service automation). For custom requirements, contact us — we build the hook and ship it in the next image update.
+No restart needed. See [OPERATIONS.md](OPERATIONS.md) for details.
 
 ## Customization
 
@@ -181,6 +179,14 @@ docker compose up -d
 ```
 
 The gateway image is updated regularly. Pull to get the latest features and fixes.
+
+## Operations
+
+See [OPERATIONS.md](OPERATIONS.md) for:
+- Health checks and Prometheus metrics
+- Config hot-reload (no restart needed)
+- Extension management (import, disable, delete)
+- Logging, backup, troubleshooting
 
 ## Support
 
