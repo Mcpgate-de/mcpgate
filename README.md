@@ -9,7 +9,6 @@ A single MCP endpoint that connects any AI to your company tools — with policy
 ## Prerequisites
 
 - Docker + Docker Compose
-- Registry access (provided during onboarding)
 - An OIDC identity provider for SSO (Google Workspace, Microsoft Entra ID, Okta, Keycloak, ...)
 - At least one service to connect (e.g. Google Workspace, Slack, Jira)
 
@@ -20,22 +19,18 @@ A single MCP endpoint that connects any AI to your company tools — with policy
 git clone git@gitlab.com:mcpgate/quickstart.git
 cd quickstart
 
-# 2. Authenticate with the container registry
-docker login registry.gitlab.com
-# Use the credentials provided during onboarding
-
-# 3. Create your environment config
+# 2. Create your environment config
 cp .env.example .env
 # Edit .env — see comments in the file for what each variable does
 
-# 4. Configure access control
+# 3. Configure access control
 # Edit config/access_control.yaml — set your company domain
 # Example: replace "example.com" with "yourcompany.com"
 
-# 5. Start
+# 4. Start
 docker compose up -d
 
-# 6. Verify
+# 5. Verify
 curl http://localhost:3001/health
 # Should return {"status": "ok"}
 ```
