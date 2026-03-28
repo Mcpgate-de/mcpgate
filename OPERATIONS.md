@@ -51,13 +51,13 @@ Available metrics:
 
 | Metric | Type | Labels | Description |
 |--------|------|--------|-------------|
-| `ai_gateway_http_requests_total` | Counter | method, endpoint, status_code | Total HTTP requests |
-| `ai_gateway_http_request_duration_seconds` | Histogram | method, endpoint | Request latency |
-| `ai_gateway_mcp_connections_active` | Gauge | — | Active MCP connections |
-| `ai_gateway_mcp_requests_total` | Counter | tool_name, status, action, client_type | MCP tool calls |
-| `ai_gateway_mcp_request_duration_seconds` | Histogram | tool_name | MCP tool call latency |
-| `ai_gateway_oauth_operations_total` | Counter | operation, service, status | OAuth operations |
-| `ai_gateway_service_errors_total` | Counter | service, error_type | Service API errors |
+| `mcpgate_http_requests_total` | Counter | method, endpoint, status_code | Total HTTP requests |
+| `mcpgate_http_request_duration_seconds` | Histogram | method, endpoint | Request latency |
+| `mcpgate_mcp_connections_active` | Gauge | — | Active MCP connections |
+| `mcpgate_mcp_requests_total` | Counter | tool_name, status, action, client_type | MCP tool calls |
+| `mcpgate_mcp_request_duration_seconds` | Histogram | tool_name | MCP tool call latency |
+| `mcpgate_oauth_operations_total` | Counter | operation, service, status | OAuth operations |
+| `mcpgate_service_errors_total` | Counter | service, error_type | Service API errors |
 
 ### Grafana Dashboard
 
@@ -68,7 +68,7 @@ Add your gateway as a Prometheus scrape target:
 scrape_configs:
   - job_name: 'mcpgate'
     static_configs:
-      - targets: ['ai-gateway:3001']
+      - targets: ['mcpgate:3001']
     metrics_path: /metrics
     scrape_interval: 15s
 ```
@@ -80,7 +80,7 @@ Edit config files on the volume mount, then reload without restart:
 ```bash
 # Reload ALL configs (extensions, hooks, access control, etc.)
 curl -X POST http://localhost:3001/admin/reload \
-  -H "Cookie: ai_gateway_session=YOUR_SESSION"
+  -H "Cookie: mcpgate_session=YOUR_SESSION"
 ```
 
 ```json
@@ -136,7 +136,7 @@ The admin dashboard can import service definitions from any OpenAPI 3.x spec:
 ```bash
 # Disable an imported extension (prefix with _)
 curl -X POST http://localhost:3001/admin/extensions/api/disable-file \
-  -H "Cookie: ai_gateway_session=YOUR_SESSION" \
+  -H "Cookie: mcpgate_session=YOUR_SESSION" \
   -H "Content-Type: application/json" \
   -d '{"filename": "statuspage_imported.yaml"}'
 
@@ -226,7 +226,7 @@ The gateway is backwards-compatible — config files from older versions work wi
 ### Gateway won't start
 
 ```bash
-docker compose logs ai-gateway | head -50
+docker compose logs mcpgate | head -50
 ```
 
 Common issues:

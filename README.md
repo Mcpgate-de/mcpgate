@@ -1,6 +1,6 @@
 # mcpgate quickstart
 
-Get the mcpgate AI Gateway running in minutes.
+Get mcpgate running in minutes.
 
 ## What is mcpgate?
 

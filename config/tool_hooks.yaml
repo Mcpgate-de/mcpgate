@@ -1,5 +1,5 @@
 # ==========================================================================
-# mcpgate AI Gateway — Hook Configuration
+# mcpgate — Hook Configuration
 # ==========================================================================
 #
 # Hooks run before (pre) or after (post) every tool call.
