@@ -1,4 +1,4 @@
-# mcpgate quickstart
+# mcpgate
 
 Get mcpgate running in minutes.
 
@@ -16,8 +16,8 @@ A single MCP endpoint that connects any AI to your company tools — with policy
 
 ```bash
 # 1. Clone this repo
-git clone git@gitlab.com:mcpgate/quickstart.git
-cd quickstart
+git clone git@gitlab.com:mcpgate/mcpgate.git
+cd mcpgate
 
 # 2. Create your environment config
 cp .env.example .env
@@ -34,6 +34,9 @@ docker compose up -d
 curl http://localhost:3001/health
 # Should return {"status": "ok"}
 ```
+
+For AI-guided onboarding, the canonical provider setup metadata lives in `config/setup_catalog.yaml`.
+It centralizes provider console URLs, redirect URI templates, and required env vars so Claude can guide users consistently.
 
 ## Connect your AI
 
@@ -119,7 +122,7 @@ Enable a service by providing its credentials in `.env`. Only services with vali
 
 ## Hooks
 
-Hooks are configured in `config/tool_hooks.yaml`. The quickstart includes a production-ready set of hooks covering:
+Hooks are configured in `config/tool_hooks.yaml`. mcpgate includes a production-ready set of hooks covering:
 
 **Policy hooks** (pre):
 - Destructive action confirmation for Google, Notion, Slack

@@ -1,0 +1,161 @@
+version: 1
+
+# Canonical setup metadata for AI-guided onboarding.
+# Purpose:
+# - give Claude one structured source for setup URLs and redirect templates
+# - avoid scattering provider console links only across README/.env comments
+# - keep user-facing docs and AI-facing setup logic aligned
+
+services:
+  oidc_google:
+    category: sso
+    provider: google
+    label: Google SSO
+    setup_url: https://console.cloud.google.com/apis/credentials
+    issuer_url: https://accounts.google.com
+    redirect_uri_template: "{BASE_URL}/auth/callback"
+    credential_env:
+      - OIDC_ISSUER_URL
+      - OIDC_CLIENT_ID
+      - OIDC_CLIENT_SECRET
+    steps:
+      - Open the Google Cloud Console credentials page.
+      - Create an OAuth client of type "Web application".
+      - Set the authorized redirect URI to {BASE_URL}/auth/callback.
+      - Copy the client ID and client secret into OIDC_CLIENT_ID and OIDC_CLIENT_SECRET.
+      - Set OIDC_ISSUER_URL to https://accounts.google.com.
+    notes:
+      - Endpoints are auto-discovered via OIDC discovery.
+      - This is only for logging into mcpgate, not for Google Workspace service access.
+
+  oidc_microsoft:
+    category: sso
+    provider: microsoft
+    label: Microsoft Entra ID SSO
+    setup_url: https://portal.azure.com/
+    issuer_url_template: "https://login.microsoftonline.com/{TENANT_ID}/v2.0"
+    redirect_uri_template: "{BASE_URL}/auth/callback"
+    credential_env:
+      - OIDC_ISSUER_URL
+      - OIDC_CLIENT_ID
+      - OIDC_CLIENT_SECRET
+    steps:
+      - Open Microsoft Entra ID in the Azure portal.
+      - Create an app registration.
+      - Add a web redirect URI pointing to {BASE_URL}/auth/callback.
+      - Copy the application client ID and client secret into OIDC_CLIENT_ID and OIDC_CLIENT_SECRET.
+      - Set OIDC_ISSUER_URL to https://login.microsoftonline.com/{TENANT_ID}/v2.0.
+    notes:
+      - Claude should ask for the tenant ID if Microsoft SSO is selected.
+      - Endpoints are auto-discovered via OIDC discovery.
+
+  google_workspace:
+    category: service_oauth
+    provider: google
+    label: Google Workspace
+    setup_url: https://console.cloud.google.com/apis/credentials
+    redirect_uri_template: "{BASE_URL}/auth/google/callback"
+    credential_env:
+      - GOOGLE_CLIENT_ID
+      - GOOGLE_CLIENT_SECRET
+    recommended_apis:
+      - Gmail API
+      - Google Calendar API
+      - Google Drive API
+      - Google Docs API
+      - Google Sheets API
+    steps:
+      - Open the Google Cloud Console credentials page.
+      - Create an OAuth client of type "Web application".
+      - Add the authorized redirect URI {BASE_URL}/auth/google/callback.
+      - Enable the Google APIs you want mcpgate to access.
+      - Copy the client ID and client secret into GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET.
+    notes:
+      - This is separate from OIDC SSO.
+      - Google API access still requires customer-owned OAuth credentials.
+
+  slack:
+    category: service_oauth
+    provider: slack
+    label: Slack
+    setup_url: https://api.slack.com/apps
+    redirect_uri_template: "{BASE_URL}/auth/slack/callback"
+    credential_env:
+      - SLACK_BOT_TOKEN
+      - SLACK_SIGNING_SECRET
+      - SLACK_CLIENT_ID
+      - SLACK_CLIENT_SECRET
+      - SLACK_TEAM_ID
+    steps:
+      - Open the Slack Apps page.
+      - Create a new Slack app for your workspace.
+      - Add the required bot scopes.
+      - Add the redirect URI {BASE_URL}/auth/slack/callback if OAuth connection flow is used.
+      - Install the app and copy the bot token, signing secret, client ID, client secret, and team ID.
+
+  jira:
+    category: service_oauth
+    provider: atlassian
+    label: Jira
+    setup_url: https://developer.atlassian.com/console/myapps/
+    redirect_uri_template: "{BASE_URL}/auth/jira/callback"
+    credential_env:
+      - JIRA_OAUTH_CLIENT_ID
+      - JIRA_OAUTH_CLIENT_SECRET
+      - JIRA_BASE_URL
+    steps:
+      - Open the Atlassian developer console.
+      - Create an OAuth 2.0 (3LO) app.
+      - Add the callback URL {BASE_URL}/auth/jira/callback.
+      - Add the required Jira scopes.
+      - Copy the client ID, client secret, and Jira base URL into the environment.
+
+  gitlab:
+    category: service_oauth
+    provider: gitlab
+    label: GitLab
+    setup_url: https://gitlab.com/-/profile/applications
+    redirect_uri_template: "{BASE_URL}/auth/gitlab/callback"
+    credential_env:
+      - GITLAB_OAUTH_CLIENT_ID
+      - GITLAB_OAUTH_CLIENT_SECRET
+      - GITLAB_BASE_URL
+    steps:
+      - Open the GitLab applications page on your GitLab instance.
+      - Create an OAuth application.
+      - Add the redirect URI {BASE_URL}/auth/gitlab/callback.
+      - Grant the required scopes, typically api and read_user.
+      - Copy the client ID, client secret, and base URL into the environment.
+    notes:
+      - For self-hosted GitLab, Claude should point the user to {GITLAB_BASE_URL}/-/profile/applications.
+
+  notion:
+    category: service_oauth
+    provider: notion
+    label: Notion
+    setup_url: https://www.notion.so/my-integrations
+    redirect_uri_template: "{BASE_URL}/auth/notion/callback"
+    credential_env:
+      - NOTION_OAUTH_CLIENT_ID
+      - NOTION_OAUTH_CLIENT_SECRET
+    steps:
+      - Open the Notion integrations page.
+      - Create an integration.
+      - Configure the redirect URI if OAuth is used.
+      - Share the relevant pages or databases with the integration.
+      - Copy the client ID and client secret into the environment.
+
+  figma:
+    category: service_oauth
+    provider: figma
+    label: Figma
+    setup_url: https://www.figma.com/developers/apps
+    redirect_uri_template: "{BASE_URL}/auth/figma/callback"
+    credential_env:
+      - FIGMA_OAUTH_CLIENT_ID
+      - FIGMA_OAUTH_CLIENT_SECRET
+    steps:
+      - Open the Figma developers apps page.
+      - Create an OAuth app.
+      - Add the redirect URI {BASE_URL}/auth/figma/callback.
+      - Copy the client ID and client secret into the environment.
