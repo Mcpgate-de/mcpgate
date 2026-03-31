@@ -1,72 +1,52 @@
 # mcpgate
 
-Get mcpgate running in minutes.
+Self-hosted MCP gateway — connect any AI to your company tools with policy hooks.
 
-## What is mcpgate?
-
-A single MCP endpoint that connects any AI to your company tools — with policy hooks that control what the AI can do, and enrichment hooks that make it do it right.
-
-## Prerequisites
-
-- Docker + Docker Compose
-- An OIDC identity provider for SSO (Google Workspace, Microsoft Entra ID, Okta, Keycloak, ...)
-- At least one service to connect (e.g. Google Workspace, Slack, Jira)
-
-## Setup
+## Quick Start
 
 ```bash
-# 1. Clone this repo
-git clone git@gitlab.com:mcpgate/mcpgate.git
+# 1. Clone and start
+git clone https://gitlab.com/mcpgate/mcpgate.git
 cd mcpgate
-
-# 2. Create your environment config
-cp .env.example .env
-# Edit .env — see comments in the file for what each variable does
-
-# 3. Configure access control
-# Edit config/access_control.yaml — set your company domain
-# Example: replace "example.com" with "yourcompany.com"
-
-# 4. Start
 docker compose up -d
 
-# 5. Verify
-curl http://localhost:3001/health
-# Should return {"status": "ok"}
+# 2. Open the setup wizard
+open http://localhost:3001
 ```
 
-For AI-guided onboarding, the canonical provider setup metadata lives in `config/setup_catalog.yaml`.
-It centralizes provider console URLs, redirect URI templates, and required env vars so Claude can guide users consistently.
+That's it. No `.env` file needed. The setup wizard walks you through login, branding, team, and connecting services. Secrets are auto-generated on first start.
+
+> **Already have an `.env`?** It still works — environment variables take priority over wizard config.
 
 ## Connect your AI
 
+After setup, connect your AI client from the dashboard:
+
 ### Claude — Company-wide (recommended)
 
-Configure once for your entire organization at [**claude.ai/admin-settings/connectors**](https://claude.ai/admin-settings/connectors). Every team member gets the gateway automatically in every Claude session — no individual setup needed.
+Configure once at [**claude.ai/admin-settings/connectors**](https://claude.ai/admin-settings/connectors):
 
 ```
 Name: mcpgate
 URL:  https://your-gateway-url/mcp
 ```
 
-### Claude Code — Individual
+### Claude Code
 
-For per-user setup, add to your Claude Code MCP config:
-
-```json
-{
-  "mcpServers": {
-    "mcpgate": {
-      "type": "http",
-      "url": "https://your-gateway-url/mcp"
-    }
-  }
-}
+```bash
+claude mcp add mcpgate https://your-gateway-url/mcp -s user -t http
 ```
 
 ### ChatGPT
 
-Add mcpgate as an App in ChatGPT. Available in every conversation with read/write separation and user consent per action.
+Settings → Apps → Add App → OAuth → enter your MCP URL.
+
+### Codex / Gemini CLI
+
+```bash
+codex mcp add mcpgate --url https://your-gateway-url/mcp
+gemini mcp add --transport http mcpgate https://your-gateway-url/mcp
+```
 
 ## Architecture
 
@@ -91,18 +71,17 @@ Every request flows through the hook pipeline:
 
 ## Authentication
 
-The gateway requires users to sign in before connecting services.
+| Method | Use case |
+|--------|----------|
+| **Broker login** | Google/Microsoft sign-in, zero config (default) |
+| **OIDC SSO** | Your own identity provider (Google, Microsoft, Okta, Keycloak, Auth0) |
+| **Magic Links** | Email-based login for external collaborators |
 
-| Method | Status | Use case |
-|--------|--------|----------|
-| **OIDC SSO** | Supported | Google, Microsoft, Okta, Keycloak, Auth0, any OIDC provider |
-| **Magic Links** | Supported | Email-based login for external collaborators |
-
-Configure allowed domains in `config/access_control.yaml`. Only users from listed domains (or individually invited guests) can access the gateway.
+SSO and service credentials are configured through the setup wizard or `.env`. See `.env.example` for the full reference.
 
 ## Services
 
-Enable a service by providing its credentials in `.env`. Only services with valid credentials activate. The gateway auto-detects what's configured.
+20+ integrations. Enable a service by entering credentials in the setup wizard or `.env`. Only configured services activate.
 
 | Service | What the AI can do |
 |---------|-------------------|
@@ -122,52 +101,23 @@ Enable a service by providing its credentials in `.env`. Only services with vali
 
 ## Hooks
 
-Hooks are configured in `config/tool_hooks.yaml`. mcpgate includes a production-ready set of hooks covering:
+Policy and enrichment hooks in `config/tool_hooks.yaml`:
 
-**Policy hooks** (pre):
-- Destructive action confirmation for Google, Notion, Slack
-- API endpoint guards for Notion, Metabase
-- Jira transition prerequisite checks
+- **Policy**: destructive action confirmation, API endpoint guards, transition checks
+- **Enrichment**: Markdown → ADF conversion, text normalization, auto-linking, templates
+- **Post-processing**: response capping, cross-service automation, auth error handling
 
-**Enrichment hooks** (pre):
-- Markdown → Jira ADF auto-conversion
-- GitLab/Slack text normalization (fixes AI client formatting issues)
-- Auto-link Jira tickets in GitLab merge requests
-- Jira issue description templates
-
-**Post-processing hooks**:
-- Cross-service automation with scheduling (e.g. desk booking → schedule office preheating via Home Assistant)
-- Response size capping (Metabase, Notion)
-- Auth error normalization
-- Missing Jira ticket reminders on MRs
-- Jira transition prerequisite hints
-
-All hooks are configured in `config/tool_hooks.yaml`. Enable, disable, or reorder them by editing the file and reloading:
+Hot-reload without restart:
 
 ```bash
 curl -X POST http://localhost:3001/admin/reload
 ```
 
-No restart needed. See [OPERATIONS.md](OPERATIONS.md) for details.
+See [OPERATIONS.md](OPERATIONS.md) for details.
 
 ## Customization
 
-### Branding
-
-Set these in `.env` to white-label the dashboard:
-
-```
-BRAND_NAME=YourCompany AI
-BRAND_FAVICON_URL=https://yourcompany.com/favicon.ico
-```
-
-### Error reporting
-
-When enabled, the gateway automatically reports errors back to mcpgate. We fix them and ship an updated image — you just pull.
-
-```
-MCPGATE_ISSUE_TOKEN=<provided during onboarding>
-```
+Branding, access control, and hooks are configurable through the setup wizard or config files. White-label the dashboard with your company name, logo, and colors.
 
 ## Updates
 
@@ -176,15 +126,19 @@ docker compose pull
 docker compose up -d
 ```
 
-The gateway image is updated regularly. Pull to get the latest features and fixes.
+## Configuration Reference
+
+For advanced configuration, create a `.env` file from the template:
+
+```bash
+cp .env.example .env
+```
+
+See `.env.example` for all available options including OIDC, service credentials, AI features, and error reporting.
 
 ## Operations
 
-See [OPERATIONS.md](OPERATIONS.md) for:
-- Health checks and Prometheus metrics
-- Config hot-reload (no restart needed)
-- Extension management (import, disable, delete)
-- Logging, backup, troubleshooting
+See [OPERATIONS.md](OPERATIONS.md) for health checks, metrics, hot-reload, extensions, and troubleshooting.
 
 ## Support
 
@@ -192,6 +146,6 @@ Contact hello@mcpgate.de
 
 ## License
 
-This repository is licensed under the Business Source License 1.1. See [LICENSE](LICENSE).
+Business Source License 1.1. See [LICENSE](LICENSE).
 
-Personal use and internal business use are permitted, including production use for your own operations. Offering the gateway itself to third parties as a hosted service, commercial product, or managed service requires a separate commercial license. See [COMMERCIAL.md](COMMERCIAL.md).
+Personal and internal business use permitted, including production. Offering mcpgate as a hosted service requires a commercial license. See [COMMERCIAL.md](COMMERCIAL.md).

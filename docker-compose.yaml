@@ -1,26 +1,27 @@
-# mcpgate
+# mcpgate — Zero-Config Setup
 #
-# Usage:
-#   1. Copy .env.example to .env and fill in your values
-#   2. docker compose up -d
-#   3. curl http://localhost:3001/health
+# Just run: docker compose up -d
+# Then open: http://localhost:3001
 #
-# Ports:
-#   3000 — MCP protocol (Claude/ChatGPT connects here)
-#   3001 — Dashboard, OAuth callbacks, health check
+# The setup wizard guides you through everything.
+# Secrets are auto-generated on first start.
+# Configuration is persisted in the gateway-data volume.
 #
-# Hot-reload config without restart:
-#   curl -X POST http://localhost:3001/admin/reload
+# For advanced configuration, create a .env file (see .env.example).
 
 services:
   mcpgate:
     image: mcpgate/mcpgate:latest
-    env_file: .env
     ports:
-      - "${MCP_SERVER_PORT:-3000}:3000"
-      - "${OAUTH_PORT:-3001}:3001"
+      - "3001:3001"
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-mcpgate-default-pw}@redis:6379/0
     depends_on:
-      - redis
+      redis:
+        condition: service_healthy
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-sf", "http://localhost:3001/health"]
@@ -28,21 +29,19 @@ services:
       timeout: 5s
       retries: 3
       start_period: 15s
-    environment:
-      # Tell admin dashboard to persist imports to the mounted data dir
-      - EXTENSIONS_DATA_DIR=/app/data/extensions
     volumes:
-      # Config files (editable, changes applied via POST /admin/reload)
-      - ./config/access_control.yaml:/app/config/access_control.yaml
-      - ./config/tool_hooks.yaml:/app/config/tool_hooks.yaml
-      # Persistent data dir — admin dashboard saves OpenAPI imports here
+      # Persistent data — auto-generated secrets, wizard config, extensions
       - gateway-data:/app/data
 
   redis:
     image: redis:7-alpine
-    command: redis-server --requirepass ${REDIS_PASSWORD}
+    command: redis-server --requirepass ${REDIS_PASSWORD:-mcpgate-default-pw} --appendonly yes --maxmemory 128mb --maxmemory-policy allkeys-lru
     volumes:
       - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-mcpgate-default-pw}", "ping"]
+      interval: 5s
+      retries: 3
     restart: unless-stopped
 
 volumes:

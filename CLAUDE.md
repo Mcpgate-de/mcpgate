@@ -8,11 +8,13 @@
 Help the user get a working mcpgate instance running as quickly as possible with the least manual friction, while preserving the product principle that OAuth apps and tokens remain under the user's control.
 
 Success means:
-- `.env` is created from `.env.example`
-- `config/access_control.yaml` matches the user's domain or guest setup
-- `docker compose up -d` starts successfully
+- `docker compose up -d` starts successfully (zero-config, no `.env` needed)
 - the health check passes
+- the setup wizard is completed (login, branding, team, services)
 - at least one service is configured or clearly queued as the next step
+
+Note: `.env` is optional. The gateway auto-generates secrets on first start and the
+setup wizard handles all configuration. `.env` takes priority when present.
 
 ## Canonical Sources
 
@@ -44,17 +46,15 @@ If these files disagree, treat `config/setup_catalog.yaml` as canonical for setu
 
 Follow this order unless the user explicitly wants something else:
 
-1. Clarify the target base URL.
-2. Create `.env` from `.env.example`.
-3. Fill the required core, security, and Redis values.
-4. Set up one login method:
-   - usually OIDC SSO
-5. Set up the first service:
-   - prefer the one the user cares about most
-6. Update `config/access_control.yaml`.
-7. Start mcpgate with Docker Compose.
-8. Verify health and detect obvious config errors.
-9. Only then add more services.
+1. `docker compose up -d` (zero-config start).
+2. Open `http://localhost:3001` — setup wizard starts automatically.
+3. Login via broker (Google/Microsoft) or configure own OIDC.
+4. Wizard: branding, team, services.
+5. Connect the first service the user cares about most.
+6. Verify health and detect obvious config errors.
+7. Only then add more services.
+
+For advanced users who prefer `.env`: `cp .env.example .env`, edit, then start.
 
 ## Questions Claude Should Ask Early
 
