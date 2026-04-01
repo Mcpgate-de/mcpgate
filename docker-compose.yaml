@@ -1,7 +1,7 @@
 # mcpgate — Zero-Config Setup
 #
 # Just run: docker compose up -d
-# Then open: http://localhost:3001
+# Then open: http://localhost:8642
 #
 # The setup wizard guides you through everything.
 # Secrets are auto-generated on first start.
@@ -13,7 +13,7 @@ services:
   mcpgate:
     image: mcpgate/mcpgate:latest
     ports:
-      - "3001:3001"
+      - "8642:3001"
     env_file:
       - path: .env
         required: false
@@ -24,7 +24,7 @@ services:
         condition: service_healthy
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-sf", "http://localhost:3001/health"]
+      test: ["CMD", "curl", "-sf", "http://localhost:8642/health"]
       interval: 10s
       timeout: 5s
       retries: 3

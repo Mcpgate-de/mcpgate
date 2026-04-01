@@ -11,7 +11,7 @@ cd mcpgate
 docker compose up -d
 
 # 2. Open the setup wizard
-open http://localhost:3001
+open http://localhost:8642
 ```
 
 That's it. No `.env` file needed. The setup wizard walks you through login, branding, team, and connecting services. Secrets are auto-generated on first start.
@@ -110,7 +110,7 @@ Policy and enrichment hooks in `config/tool_hooks.yaml`:
 Hot-reload without restart:
 
 ```bash
-curl -X POST http://localhost:3001/admin/reload
+curl -X POST http://localhost:8642/admin/reload
 ```
 
 See [OPERATIONS.md](OPERATIONS.md) for details.
