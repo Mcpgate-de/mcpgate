@@ -18,6 +18,7 @@ services:
       - path: .env
         required: false
     environment:
+      - BASE_URL=http://localhost:8642
       - REDIS_URL=redis://:${REDIS_PASSWORD:-mcpgate-default-pw}@redis:6379/0
     depends_on:
       redis:
