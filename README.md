@@ -5,16 +5,17 @@ Self-hosted MCP gateway — connect any AI to your company tools with policy hoo
 ## Quick Start
 
 ```bash
-# 1. Clone and start
-git clone https://gitlab.com/mcpgate/mcpgate.git
-cd mcpgate
 docker compose up -d
-
-# 2. Open the setup wizard
 open http://localhost:8642
 ```
 
 That's it. No `.env` file needed. The setup wizard walks you through login, branding, team, and connecting services. Secrets are auto-generated on first start.
+
+> **New here?** Clone the repo to get the pre-configured `docker-compose.yml`:
+> ```bash
+> git clone https://gitlab.com/mcpgate/mcpgate.git && cd mcpgate
+> ```
+> Or copy the `docker-compose.yml` from [mcpgate.de/docs/quickstart](https://mcpgate.de/docs/quickstart).
 
 > **Already have an `.env`?** It still works — environment variables take priority over wizard config.
 
