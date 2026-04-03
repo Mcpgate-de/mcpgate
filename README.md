@@ -68,14 +68,9 @@ flowchart TB
         Auth --> Pre --> Exec --> Post
     end
 
-    Exec -- "OAuth2 (per-user tokens)" --> Services
+    Post --> Services
 
-    subgraph Services["Company Tools"]
-        direction TB
-        S1["Slack · Jira · GitLab"]
-        S2["Google Workspace · Notion · Figma"]
-        S3["Grafana · Sentry · Amplitude · Metabase"]
-    end
+    Services["Slack · Jira · GitLab\nGoogle Workspace · Notion · Figma\nGrafana · Sentry · Amplitude\nMetabase + more"]
 ```
 
 **How a request flows:**
