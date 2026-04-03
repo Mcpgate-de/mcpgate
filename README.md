@@ -70,7 +70,12 @@ flowchart TB
 
     Exec -- "OAuth2 (per-user tokens)" --> Services
 
-    Services["Slack · Jira · GitLab · Google Workspace · Notion · Figma · Grafana · Sentry · Amplitude · Metabase + more"]
+    subgraph Services["Company Tools"]
+        direction TB
+        S1["Slack · Jira · GitLab"]
+        S2["Google Workspace · Notion · Figma"]
+        S3["Grafana · Sentry · Amplitude · Metabase"]
+    end
 ```
 
 **How a request flows:**
