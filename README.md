@@ -55,7 +55,7 @@ gemini mcp add --transport http mcpgate https://your-gateway-url/mcp
 
 ```mermaid
 flowchart TB
-    AI["🤖 Claude · ChatGPT · Codex · Gemini · Any MCP Agent"]
+    AI["Claude · ChatGPT · Codex · Gemini · Any MCP Agent"]
     
     AI -- "MCP Protocol (tool calls)" --> Auth
 
@@ -63,12 +63,14 @@ flowchart TB
         Auth["Authentication — OAuth / OIDC"]
         Pre["Pre-Hooks — validate · block · transform · enrich"]
         Exec["Action Executor — YAML-defined, per-service"]
-        Post["Post-Hooks — cap responses · notify · add hints"]
+        Post["Post-Hooks — cap responses · notify · chain actions"]
 
         Auth --> Pre --> Exec --> Post
+        Post -. "chain: trigger
+        follow-up actions" .-> Pre
     end
 
-    Post -- "OAuth2 (per-user tokens)" --> Services
+    Exec -- "OAuth2 (per-user tokens)" --> Services
 
     Services["Slack · Jira · GitLab · Google Workspace · Notion · Figma · Grafana · Sentry · Amplitude · Metabase + more"]
 ```
@@ -77,9 +79,9 @@ flowchart TB
 
 1. AI sends a tool call via MCP (e.g. `jira_write_actions` → `create_issue`)
 2. mcpgate authenticates the user via OAuth/OIDC
-3. **Pre-hooks** run: validate permissions, block destructive actions, transform data
+3. **Pre-hooks** run: validate permissions, block destructive actions, transform data (e.g. Markdown → Jira ADF)
 4. Action executes against the service API using per-user OAuth tokens
-5. **Post-hooks** run: cap response size, add display hints, trigger notifications
+5. **Post-hooks** run: cap response size, add display hints — and optionally **chain follow-up actions** (e.g. post a Slack notification after a Jira issue is created)
 6. Result returns to the AI client
 
 ## Authentication
