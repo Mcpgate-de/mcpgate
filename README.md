@@ -66,8 +66,6 @@ flowchart TB
         Post["Post-Hooks — cap responses · notify · chain actions"]
 
         Auth --> Pre --> Exec --> Post
-        Post -. "chain: trigger
-        follow-up actions" .-> Pre
     end
 
     Exec -- "OAuth2 (per-user tokens)" --> Services
