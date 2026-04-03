@@ -53,24 +53,45 @@ gemini mcp add --transport http mcpgate https://your-gateway-url/mcp
 
 ## Architecture
 
-```
-+------------+      +------------------+      +------------+
-| Claude /   |      |                  |      | Slack      |
-| ChatGPT /  |----->|     mcpgate      |----->| Jira       |
-| Any MCP    |      |                  |      | GitLab     |
-| Agent      |<-----|  pre_hooks  -->  |<-----| Google     |
-|            |      |  post_hooks -->  |      | Notion     |
-+------------+      +------------------+      | Figma      |
-                                              | ...        |
-                                              +------------+
+```mermaid
+flowchart LR
+    subgraph AI["AI Clients"]
+        Claude["Claude / Claude Code"]
+        ChatGPT["ChatGPT / Codex"]
+        Other["Gemini / Any MCP Agent"]
+    end
+
+    subgraph GW["mcpgate"]
+        direction TB
+        Auth["OAuth / OIDC\nAuthentication"]
+        Pre["Pre-Hooks\nvalidate · block · transform · enrich"]
+        Exec["Action Executor\nYAML-defined actions"]
+        Post["Post-Hooks\ncap responses · notify · hints"]
+
+        Auth --> Pre --> Exec --> Post
+    end
+
+    subgraph Services["Company Tools"]
+        Slack["Slack"]
+        Jira["Jira"]
+        GitLab["GitLab"]
+        Google["Google Workspace"]
+        Notion["Notion"]
+        More["Figma · Grafana · Sentry\nAmplitude · Metabase\n+ 10 more"]
+    end
+
+    AI -- "MCP Protocol\n(tool calls)" --> GW
+    GW -- "OAuth2\n(per-user tokens)" --> Services
 ```
 
-Every request flows through the hook pipeline:
+**How a request flows:**
 
-1. AI sends a tool call (e.g. `jira_write_actions` → `create_issue`)
-2. **Pre-hooks** run: validate, block, transform, enrich
-3. Action executes against the service API
-4. **Post-hooks** run: cap responses, add hints, notify
+1. AI sends a tool call via MCP (e.g. `jira_write_actions` → `create_issue`)
+2. mcpgate authenticates the user via OAuth/OIDC
+3. **Pre-hooks** run: validate permissions, block destructive actions, transform data
+4. Action executes against the service API using per-user OAuth tokens
+5. **Post-hooks** run: cap response size, add display hints, trigger notifications
+6. Result returns to the AI client
 
 ## Authentication
 
