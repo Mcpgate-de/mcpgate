@@ -54,34 +54,23 @@ gemini mcp add --transport http mcpgate https://your-gateway-url/mcp
 ## Architecture
 
 ```mermaid
-flowchart LR
-    subgraph AI["AI Clients"]
-        Claude["Claude / Claude Code"]
-        ChatGPT["ChatGPT / Codex"]
-        Other["Gemini / Any MCP Agent"]
-    end
+flowchart TB
+    AI["🤖 Claude · ChatGPT · Codex · Gemini · Any MCP Agent"]
+    
+    AI -- "MCP Protocol (tool calls)" --> Auth
 
     subgraph GW["mcpgate"]
-        direction TB
-        Auth["OAuth / OIDC\nAuthentication"]
-        Pre["Pre-Hooks\nvalidate · block · transform · enrich"]
-        Exec["Action Executor\nYAML-defined actions"]
-        Post["Post-Hooks\ncap responses · notify · hints"]
+        Auth["Authentication — OAuth / OIDC"]
+        Pre["Pre-Hooks — validate · block · transform · enrich"]
+        Exec["Action Executor — YAML-defined, per-service"]
+        Post["Post-Hooks — cap responses · notify · add hints"]
 
         Auth --> Pre --> Exec --> Post
     end
 
-    subgraph Services["Company Tools"]
-        Slack["Slack"]
-        Jira["Jira"]
-        GitLab["GitLab"]
-        Google["Google Workspace"]
-        Notion["Notion"]
-        More["Figma · Grafana · Sentry\nAmplitude · Metabase\n+ 10 more"]
-    end
+    Post -- "OAuth2 (per-user tokens)" --> Services
 
-    AI -- "MCP Protocol\n(tool calls)" --> GW
-    GW -- "OAuth2\n(per-user tokens)" --> Services
+    Services["Slack · Jira · GitLab · Google Workspace · Notion · Figma · Grafana · Sentry · Amplitude · Metabase + more"]
 ```
 
 **How a request flows:**
