@@ -6,6 +6,8 @@ Self-hosted MCP gateway — connect any AI to your company tools with policy hoo
 
 ![One question. Three services. One answer.](demo.gif)
 
+Your AI can talk to Slack, Jira, GitLab, Google Workspace, and 15+ more — through a single MCP endpoint. mcpgate handles auth, permissions, and policy hooks so you don't build integrations yourself.
+
 ## Quick Start
 
 ```bash
