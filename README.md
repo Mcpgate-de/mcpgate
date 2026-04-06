@@ -8,13 +8,13 @@ This repository contains the self-hosting distribution for mcpgate: Docker Compo
 
 ![One question. Three services. One answer.](demo.gif)
 
-A PM finishes a user interview and asks Claude to consolidate his notes in Notion. After reviewing them, he saves the key takeaways to the insights database and frames an opportunity for the next product meeting. What used to be something not finished in the same day is done in 15 minutes.
+A PM finishes a user interview and asks Claude to consolidate his notes in Notion. (Works the same with ChatGPT, Codex, or any MCP-compatible agent.) After reviewing them, he saves the key takeaways to the insights database and frames an opportunity for the next product meeting. What used to take the rest of the day is done in 15 minutes.
 
-Weeks later, the product team decides to prioritize that opportunity. The PM gives the AI the full context, adds constraints, and starts prototyping. The AI spins up a React/Vite prototype on Kubernetes from the main branch — and the PM iterates on the actual problem, not on tooling. A few hours later, there's not just a working prototype — it integrates with the existing app and the design system, because the AI had the context to do it right. The prototype is saved to a Git branch automatically.
+Weeks later, the product team decides to prioritize that opportunity. The PM gives the AI the full context, adds constraints, and starts prototyping. The AI pulls the codebase, scaffolds a working prototype, and the PM iterates on the actual problem — not on tooling. A few hours later, the prototype integrates with the existing app and the design system, because the AI had the context to do it right. Changes are saved to a Git branch automatically.
 
 With all that context loaded, the AI drafts Jira tickets for the refinement — written in the team's preferred style, thanks to hooks. When the team meets, they walk through a working prototype, identify gaps, and make it actionable. Design, development, QA — everyone picks up where the last person left off, with full context.
 
-mcpgate connects your tools to your AI — Notion, Jira, GitLab, Figma, and many more. 20 integrations ship at launch, and you can add your own through OpenAPI import. Company hooks enforce your policies, while user hooks let individuals fine-tune rules directly from Claude — hot-reloaded in seconds. mcpgate works as an MCP gateway, but also as a gate: your rules, your data. Eliminate loops between teams, safely manage context across handoffs, and let your team focus on building.
+mcpgate connects your tools to your AI — Notion, Jira, GitLab, Figma, and many more. 20 integrations ship at launch, and you can add your own through OpenAPI import. Company hooks enforce your policies, while user hooks let individuals fine-tune rules directly from their AI client — hot-reloaded in seconds. mcpgate works as an MCP gateway, but also as a gate: your rules, your data. Eliminate loops between teams, safely manage context across handoffs, and let your team focus on building.
 
 AI transformation is happening. Your tools, your data, and your context need to be connected — mcpgate is how you do it on your terms.
 
