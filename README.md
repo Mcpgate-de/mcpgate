@@ -6,11 +6,11 @@ Self-hosted MCP gateway — connect any AI to your company tools with policy hoo
 
 ![One question. Three services. One answer.](demo.gif)
 
-Imagine your daily workflow: a PM drafts a feature request in Notion after a user interview. It becomes a Jira ticket. A developer picks it up, opens a merge request in GitLab, and asks in Slack for a quick review. After merging, Grafana confirms the deployment is healthy. Five tools, one feature — and your AI assistant can follow the entire thread.
+A PM finishes a user interview and asks Claude to turn her Google Docs notes into a Jira ticket with the right labels and priority. A designer asks for the related Figma components and links them to the ticket. A developer picks it up, asks what changed since the last sprint, and creates a merge request in GitLab. A colleague reviews it by asking for a summary of the diff and the pipeline status. After deployment, the on-call engineer asks whether Grafana shows anything unusual.
 
-mcpgate makes this possible. One Docker container, one MCP endpoint, 20+ services. Your AI reads the Notion brief, creates the Jira ticket, checks the GitLab pipeline, searches Slack for context, and monitors Grafana — all through natural conversation.
+Five people, five tools, one AI assistant that connects them all. That's mcpgate.
 
-Auth is per user via OAuth/OIDC. Policy hooks control what the AI can do: block destructive actions, require approvals, or transform data on the fly. Everything runs on your infrastructure — no data leaves your network.
+One Docker container. One MCP endpoint. 20+ services. Auth is per user via OAuth/OIDC. Policy hooks control what the AI can and cannot do. Everything runs on your infrastructure.
 
 ## Quick Start
 
