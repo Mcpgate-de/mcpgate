@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>mcpgate Demo</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #1a1b26;
+    color: #a9b1d6;
+    font-family: 'SF Mono', 'JetBrains Mono', 'Fira Code', 'Menlo', monospace;
+    font-size: 14px;
+    line-height: 1.6;
+    padding: 20px 24px;
+    min-height: 100vh;
+  }
+  .headline {
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #2d3250;
+  }
+  .headline-main {
+    display: block;
+    color: #c0caf5;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 4px;
+  }
+  .headline-sub {
+    display: block;
+    color: #565f89;
+    font-size: 13px;
+  }
+  .title-bar {
+    color: #565f89;
+    margin-bottom: 16px;
+    font-size: 12px;
+  }
+  .prompt-line {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+  .prompt-marker {
+    color: #7aa2f7;
+    font-weight: bold;
+    white-space: nowrap;
+  }
+  .user-input { color: #c0caf5; }
+  .cursor {
+    display: inline-block;
+    width: 8px;
+    height: 16px;
+    background: #c0caf5;
+    vertical-align: text-bottom;
+  }
+  .tool-call {
+    color: #565f89;
+    margin: 8px 0 4px 0;
+    font-size: 13px;
+  }
+  .tool-icon { color: #7aa2f7; }
+  .tool-name { color: #bb9af7; }
+  .tool-check { color: #9ece6a; }
+  .response { margin-top: 12px; color: #a9b1d6; }
+  .response h3 {
+    color: #c0caf5;
+    font-size: 14px;
+    font-weight: bold;
+    margin: 12px 0 4px 0;
+  }
+  .alert-firing { color: #f7768e; font-weight: bold; }
+  .alert-name { color: #e0af68; }
+  .status-progress { color: #e0af68; }
+  .status-open { color: #9ece6a; }
+  .assignee { color: #7aa2f7; }
+  .mr-link { color: #7aa2f7; text-decoration: underline; }
+  .metric { color: #f7768e; font-weight: bold; }
+  .service-badge {
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: bold;
+    margin-right: 4px;
+  }
+  .badge-grafana { background: #2d3250; color: #ff6b6b; }
+  .badge-jira { background: #2d3250; color: #7aa2f7; }
+  .badge-gitlab { background: #2d3250; color: #bb9af7; }
+  .hidden { display: none; }
+  .summary-box {
+    border-left: 3px solid #7aa2f7;
+    padding: 8px 12px;
+    margin: 12px 0;
+    background: #1e2030;
+    border-radius: 0 4px 4px 0;
+  }
+</style>
+</head>
+<body>
+<div class="headline">
+  <span class="headline-main">One question. Three services. One answer.</span>
+  <span class="headline-sub">mcpgate connects your AI assistant to Grafana, Jira, GitLab, Slack, and 15+ more.</span>
+</div>
+<div class="title-bar">~/project $ claude</div>
+
+<div class="prompt-line">
+  <span class="prompt-marker">></span>
+  <span class="user-input" id="typed-text"></span><span class="cursor" id="cursor"></span>
+</div>
+
+<div id="tool-calls" class="hidden">
+  <div class="tool-call" id="tool1">
+    <span class="tool-icon">&#9673;</span> <span class="tool-name">grafana_read_actions</span> (search_alerts) <span class="tool-check" id="check1"></span>
+  </div>
+  <div class="tool-call hidden" id="tool2">
+    <span class="tool-icon">&#9673;</span> <span class="tool-name">jira_read_actions</span> (search_issues: "API latency") <span class="tool-check" id="check2"></span>
+  </div>
+  <div class="tool-call hidden" id="tool3">
+    <span class="tool-icon">&#9673;</span> <span class="tool-name">gitlab_read_actions</span> (search_merge_requests: "performance fix") <span class="tool-check" id="check3"></span>
+  </div>
+</div>
+
+<div id="response" class="response hidden">
+  <h3>Incident Summary</h3>
+
+  <div style="margin: 8px 0;">
+    <span class="service-badge badge-grafana">Grafana</span> <strong>2 alerts firing:</strong>
+  </div>
+  <div style="margin-left: 16px;">
+    <span class="alert-firing">FIRING</span> <span class="alert-name">High API Latency</span> &mdash; p95 at <span class="metric">823ms</span> (threshold: 500ms)<br>
+    <span class="alert-firing">FIRING</span> <span class="alert-name">Disk Usage Warning</span> &mdash; prod-worker-03 at <span class="metric">89%</span>
+  </div>
+
+  <div style="margin: 12px 0 4px 0;">
+    <span class="service-badge badge-jira">Jira</span> <strong>Root cause ticket:</strong>
+  </div>
+  <div style="margin-left: 16px;">
+    <strong>TF-127</strong> "API response times degraded after v2.3"<br>
+    Status: <span class="status-progress">In Progress</span> | Assignee: <span class="assignee">Jordan Lee</span> | Priority: High
+  </div>
+
+  <div style="margin: 12px 0 4px 0;">
+    <span class="service-badge badge-gitlab">GitLab</span> <strong>Fix in progress:</strong>
+  </div>
+  <div style="margin-left: 16px;">
+    MR <span class="mr-link">!92</span> "fix(TF-127): Resolve N+1 query in ProjectSerializer"<br>
+    Adds eager loading for members association &mdash; targets the p95 regression from v2.3<br>
+    Status: <span class="status-open">Open</span> | Author: <span class="assignee">Jordan Lee</span> | Review by: <span class="assignee">Alex Chen</span>
+  </div>
+
+  <div class="summary-box" style="margin-top: 16px;">
+    <strong>TL;DR:</strong> The API latency alert is caused by an N+1 query introduced in v2.3.
+    Jordan Lee has an MR ready (!92) that adds eager loading. Once merged and deployed,
+    the p95 should drop back below the 500ms threshold.
+  </div>
+</div>
+
+<script>
+// Frame-based capture: records canvas frames into an array, then exports as WebM or GIF
+const QUERY = 'Give me a full incident summary: what alerts are firing, what\'s the root cause ticket, and what\'s the status of the fix?';
+const typedEl = document.getElementById('typed-text');
+const cursorEl = document.getElementById('cursor');
+
+// Keyframe states for external control
+const STATES = [
+  // 0: empty prompt with cursor
+  () => {},
+  // 1: ~25% typed
+  () => { typedEl.textContent = QUERY.substring(0, 30); },
+  // 2: ~50% typed
+  () => { typedEl.textContent = QUERY.substring(0, 65); },
+  // 3: ~75% typed
+  () => { typedEl.textContent = QUERY.substring(0, 100); },
+  // 4: fully typed
+  () => { typedEl.textContent = QUERY; },
+  // 5: tools appearing
+  () => {
+    typedEl.textContent = QUERY;
+    cursorEl.style.display = 'none';
+    document.getElementById('tool-calls').classList.remove('hidden');
+    document.getElementById('tool2').classList.remove('hidden');
+    document.getElementById('tool3').classList.remove('hidden');
+  },
+  // 6: first checkmark
+  () => {
+    typedEl.textContent = QUERY;
+    cursorEl.style.display = 'none';
+    document.getElementById('tool-calls').classList.remove('hidden');
+    document.getElementById('tool2').classList.remove('hidden');
+    document.getElementById('tool3').classList.remove('hidden');
+    document.getElementById('check1').textContent = '\u2713';
+  },
+  // 7: all checkmarks
+  () => {
+    typedEl.textContent = QUERY;
+    cursorEl.style.display = 'none';
+    document.getElementById('tool-calls').classList.remove('hidden');
+    document.getElementById('tool2').classList.remove('hidden');
+    document.getElementById('tool3').classList.remove('hidden');
+    document.getElementById('check1').textContent = '\u2713';
+    document.getElementById('check2').textContent = '\u2713';
+    document.getElementById('check3').textContent = '\u2713';
+  },
+  // 8: full response
+  () => {
+    typedEl.textContent = QUERY;
+    cursorEl.style.display = 'none';
+    document.getElementById('tool-calls').classList.remove('hidden');
+    document.getElementById('tool2').classList.remove('hidden');
+    document.getElementById('tool3').classList.remove('hidden');
+    document.getElementById('check1').textContent = '\u2713';
+    document.getElementById('check2').textContent = '\u2713';
+    document.getElementById('check3').textContent = '\u2713';
+    document.getElementById('response').classList.remove('hidden');
+  },
+];
+
+// Call window.goToState(n) from external JS to set frame
+window.goToState = function(n) {
+  // Reset
+  typedEl.textContent = '';
+  cursorEl.style.display = 'inline-block';
+  document.getElementById('tool-calls').classList.add('hidden');
+  document.getElementById('tool2').classList.add('hidden');
+  document.getElementById('tool3').classList.add('hidden');
+  document.getElementById('check1').textContent = '';
+  document.getElementById('check2').textContent = '';
+  document.getElementById('check3').textContent = '';
+  document.getElementById('response').classList.add('hidden');
+  // Apply state
+  if (n >= 0 && n < STATES.length) STATES[n]();
+  return 'state ' + n + ' applied';
+};
+
+window.getStateCount = function() { return STATES.length; };
+</script>
+</body>
+</html>

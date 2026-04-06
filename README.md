@@ -4,6 +4,8 @@ Self-hosted MCP gateway — connect any AI to your company tools with policy hoo
 
 [Website](https://mcpgate.de) · [Docs](https://mcpgate.de/docs) · [Demo](https://demo.mcpgate.de) · [Docker Hub](https://hub.docker.com/r/mcpgate/mcpgate) · [Pricing](https://mcpgate.de/pricing)
 
+![One question. Three services. One answer.](demo.gif)
+
 ## Quick Start
 
 ```bash
