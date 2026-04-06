@@ -4,6 +4,8 @@ Self-hosted MCP gateway — connect any AI to your company tools with policy hoo
 
 [Website](https://mcpgate.de) · [Docs](https://mcpgate.de/docs) · [Demo](https://demo.mcpgate.de) · [Docker Hub](https://hub.docker.com/r/mcpgate/mcpgate) · [Pricing](https://mcpgate.de/pricing)
 
+This repository contains the self-hosting distribution for mcpgate: Docker Compose, configuration templates, hooks, and operations docs. Published container images are released via the CI/CD pipeline connected to this repository.
+
 ![One question. Three services. One answer.](demo.gif)
 
 A PM finishes a user interview and asks Claude to consolidate his notes in Notion. After reviewing them, he saves the key takeaways to the insights database and frames an opportunity for the next product meeting. What used to be something not finished in the same day is done in 15 minutes.
