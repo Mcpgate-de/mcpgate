@@ -104,11 +104,14 @@ services:
       - JIRA_OAUTH_CLIENT_SECRET
       - JIRA_BASE_URL
     steps:
-      - Open the Atlassian developer console.
-      - Create an OAuth 2.0 (3LO) app.
-      - Add the callback URL {BASE_URL}/auth/jira/callback.
-      - Add the required Jira scopes.
-      - Copy the client ID, client secret, and Jira base URL into the environment.
+      - Open the Atlassian developer console and create an OAuth 2.0 (3LO) app.
+      - Authorization → click "Configure" on OAuth 2.0 (3LO) and set the callback URL to {BASE_URL}/auth/jira/callback.
+      - Permissions → add both "Jira API" and "User Identity API" to the app.
+      - On each API row, click "Edit Scopes" (top right) — the checkboxes are read-only until you do.
+      - Jira API (Classic scopes) → select read:jira-user, read:jira-work, write:jira-work.
+      - User Identity API → select read:me.
+      - offline_access is requested automatically by mcpgate; no manual scope toggle needed.
+      - Copy the client ID, client secret, and your Jira base URL into the environment.
 
   gitlab:
     category: service_oauth
