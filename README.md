@@ -101,7 +101,7 @@ flowchart TB
 | Method | Use case |
 |--------|----------|
 | **Broker login** | Google/Microsoft sign-in, zero config (default) |
-| **OIDC SSO** | Your own identity provider (Google, Microsoft, Okta, Keycloak, Auth0) |
+| **OIDC SSO** | Your own identity provider (Google, Microsoft, Okta, Keycloak, Auth0). New users provisioned automatically &mdash; no separate user table to maintain. |
 | **Magic Links** | Email-based login for external collaborators |
 
 SSO and service credentials are configured through the setup wizard or `.env`. See `.env.example` for the full reference.
@@ -112,7 +112,7 @@ SSO and service credentials are configured through the setup wizard or `.env`. S
 
 | Service | What the AI can do |
 |---------|-------------------|
-| **Google Workspace** | Gmail, Calendar, Drive, Docs, Sheets, Slides (~90 actions) |
+| **Google Workspace** | Gmail, Calendar, Drive, Docs, Sheets, Slides |
 | **Microsoft 365** | Outlook, Teams, OneDrive, SharePoint, Calendar |
 | **Slack** | Search messages, read channels, post messages |
 | **Jira** | Create/update issues, transitions, worklogs, comments |
@@ -136,6 +136,15 @@ SSO and service credentials are configured through the setup wizard or `.env`. S
 | **Joan** | Desk & meeting room booking |
 
 Plus self-management tools (gateway config, issue reporting) and OpenAPI import for anything else.
+
+## Compliance & Safety
+
+Built-in safeguards that don't need configuration:
+
+- **PII Sanitization with Pseudonym Rehydration** — sensitive data (emails, names, phone numbers) is replaced with stable pseudonyms before it reaches the LLM, then rehydrated when the agent calls a tool. Mapping stays on-prem, encrypted at rest, and expires after 24h. Preserves write-flows that simple redaction would break.
+- **Write-Safety Defaults** — destructive actions (delete, archive, dashboard PUTs) require explicit `confirmed=true` or `force=true`. Response size caps prevent accidental mass operations.
+- **Structured Audit Log** — every tool call logged with anonymized user hash, action, status, and timestamp. No raw queries, no PII.
+- **Highly available** — runs as multiple replicas behind your load balancer. Config changes propagate to all replicas in seconds.
 
 ## Hooks
 
