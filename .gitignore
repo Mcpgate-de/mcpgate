@@ -8,3 +8,4 @@ redis-data/
 .DS_Store
 .astro/
 node_modules/
+AGENTS.md
