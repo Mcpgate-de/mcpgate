@@ -47,7 +47,7 @@ If these files disagree, treat `config/setup_catalog.yaml` as canonical for setu
 Follow this order unless the user explicitly wants something else:
 
 1. `docker compose up -d` (zero-config start).
-2. Open `http://localhost:3001` — setup wizard starts automatically.
+2. Open `http://localhost:8642` — setup wizard starts automatically.
 3. Login via broker (Google/Microsoft) or configure own OIDC.
 4. Wizard: branding, team, services.
 5. Connect the first service the user cares about most.
@@ -112,7 +112,7 @@ Until a dedicated `verify-setup.sh` exists, use this minimum verification flow:
 
 ```bash
 docker compose up -d
-curl http://localhost:3001/health
+curl http://localhost:8642/health
 ```
 
 Then check:

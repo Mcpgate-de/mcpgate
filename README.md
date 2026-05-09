@@ -12,9 +12,9 @@ A PM finishes a user interview and asks Claude to consolidate his notes in Notio
 
 Weeks later, the product team decides to prioritize that opportunity. The PM gives the AI the full context, adds constraints, and starts prototyping. The AI pulls the codebase, scaffolds a working prototype, and the PM iterates on the actual problem — not on tooling. A few hours later, the prototype integrates with the existing app and the design system, because the AI had the context to do it right. Changes are saved to a Git branch automatically.
 
-With all that context loaded, the AI drafts Jira tickets for the refinement — written in the team's preferred style, thanks to hooks. When the team meets, they walk through a working prototype, identify gaps, and make it actionable. Design, development, QA — everyone picks up where the last person left off, with full context.
+With all that context loaded, the AI drafts Jira tickets for the refinement. Hooks handle the boring parts — converting Markdown to Jira's ADF format, enforcing required fields, and blocking accidental overwrites. When the team meets, they walk through a working prototype, identify gaps, and make it actionable. Design, development, QA — everyone picks up where the last person left off, with full context.
 
-mcpgate connects your tools to your AI — Notion, Jira, GitLab, Figma, and many more. 20 integrations ship at launch, and you can add your own through OpenAPI import. Company hooks enforce your policies, while user hooks let individuals fine-tune rules directly from their AI client — hot-reloaded in seconds. mcpgate works as an MCP gateway, but also as a gate: your rules, your data. Eliminate loops between teams, safely manage context across handoffs, and let your team focus on building.
+mcpgate connects your tools to your AI — Notion, Jira, GitLab, Figma, and many more. 22 integrations are built in, and you can add your own through OpenAPI import. Company hooks enforce your policies, while user hooks let individuals fine-tune rules directly from their AI client — hot-reloaded in seconds. mcpgate works as an MCP gateway, but also as a gate: your rules, your data. Eliminate loops between teams, safely manage context across handoffs, and let your team focus on building.
 
 AI transformation is happening. Your tools, your data, and your context need to be connected — mcpgate is how you do it on your terms.
 
@@ -75,16 +75,16 @@ flowchart TB
 
     subgraph GW["mcpgate"]
         Auth["Authentication — OAuth / OIDC"]
-        Pre["Pre-Hooks — validate · block · transform · enrich"]
+        Pre["Pre-Hooks — validate · inject · transform"]
         Exec["Action Executor — YAML-defined, per-service"]
-        Post["Post-Hooks — cap responses · notify · chain actions"]
+        Post["Post-Hooks — instruct · notify"]
 
         Auth --> Pre --> Exec --> Post
     end
 
     Post --> Services
 
-    Services["Slack · Jira · GitLab\nGoogle Workspace · Notion · Figma\nGrafana · Sentry · Amplitude\nMetabase + more"]
+    Services["Slack · Jira · Confluence · GitLab · GitHub\nGoogle Workspace · Microsoft 365 · Notion · Figma\nGrafana · Sentry · Metabase · Amplitude\n+ 10 more"]
 ```
 
 **How a request flows:**
@@ -108,31 +108,46 @@ SSO and service credentials are configured through the setup wizard or `.env`. S
 
 ## Services
 
-20+ integrations. Enable a service by entering credentials in the setup wizard or `.env`. Only configured services activate.
+22 integrations. Enable a service by entering credentials in the setup wizard or `.env`. Only configured services activate.
 
 | Service | What the AI can do |
 |---------|-------------------|
 | **Google Workspace** | Gmail, Calendar, Drive, Docs, Sheets, Slides (~90 actions) |
+| **Microsoft 365** | Outlook, Teams, OneDrive, SharePoint, Calendar |
 | **Slack** | Search messages, read channels, post messages |
 | **Jira** | Create/update issues, transitions, worklogs, comments |
+| **Confluence** | Spaces, pages, comments, CQL search |
 | **GitLab** | Issues, merge requests, pipelines, deployments, CI/CD |
+| **GitHub** | Issues, pull requests, code search, releases |
 | **Notion** | Pages, databases, blocks, comments |
 | **Figma** | Files, components, comments, dev resources |
 | **Grafana** | Dashboards, logs, metrics |
-| **Amplitude** | Charts, active users, real-time analytics |
-| **Metabase** | BI dashboards, SQL queries, schema exploration |
 | **Sentry** | Error tracking, issue queries |
+| **Metabase** | BI dashboards, SQL queries, schema exploration |
+| **Amplitude** | Charts, active users, real-time analytics |
+| **BigQuery** | Datasets, tables, query execution |
+| **Jenkins** | Builds, pipelines, jobs |
+| **Transifex** | Translation projects, strings, languages |
+| **AppStore Connect** | App metadata, builds, reviews |
+| **Google Play** | App listings, releases, reviews |
+| **Supernova** | Design tokens, components |
 | **WordPress** | Posts, pages, Yoast SEO metadata (multi-instance) |
 | **Home Assistant** | Office sensors, heating control |
 | **Joan** | Desk & meeting room booking |
+
+Plus self-management tools (gateway config, issue reporting) and OpenAPI import for anything else.
 
 ## Hooks
 
 Policy and enrichment hooks in `config/tool_hooks.yaml`:
 
-- **Policy**: destructive action confirmation, API endpoint guards, transition checks
-- **Enrichment**: Markdown → ADF conversion, text normalization, auto-linking, templates
-- **Post-processing**: response capping, cross-service automation, auth error handling
+- **Policy** (validation): destructive action confirmation, API endpoint guards, transition checks
+- **Enrichment** (mutation): Markdown → ADF conversion, text normalization, auto-linking, templates
+- **Post-processing** (observability): response capping, cross-service automation, auth error handling
+
+Hooks handle deterministic guarantees — format conversion, write-safety, audit, PII handling. For preference- and workflow-shaped instructions (team templates, individual style), the MCP standard's emerging **Skills** mechanism ([SKILL.md format](https://agentskills.io)) is the right place. Hooks enforce; skills personalize.
+
+> Heads-up: the MCP **Interceptors Working Group** ([SEP-1763](https://github.com/modelcontextprotocol/modelcontextprotocol/issues/1763), charter 2026-04-21) is standardizing exactly what mcpgate calls hooks today. The three Interceptor types — validation, mutation, observability — map 1:1 to our Policy / Enrichment / Post-Hooks. Once the SEP stabilizes we'll expose `interceptor/list` and friends as a thin adapter on top of the existing hook system.
 
 Hot-reload without restart:
 
