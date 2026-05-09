@@ -143,7 +143,7 @@ Built-in safeguards that don't need configuration:
 
 - **PII Sanitization with Pseudonym Rehydration** — sensitive data (emails, names, phone numbers) is replaced with stable pseudonyms before it reaches the LLM, then rehydrated when the agent calls a tool. Mapping stays on-prem, encrypted at rest, and expires after 24h. Preserves write-flows that simple redaction would break.
 - **Write-Safety Defaults** — destructive actions (delete, archive, dashboard PUTs) require explicit `confirmed=true` or `force=true`. Response size caps prevent accidental mass operations.
-- **Structured Audit Log** — every tool call logged with anonymized user hash, action, status, and timestamp. No raw queries, no PII.
+- **Stores nothing in transit** — mcpgate is a pass-through. Tool actions are auditable in your own tools (Jira, GitLab, Slack) where they happen. The only data we hold is the encrypted pseudonym mapping for PII rehydration, with a 24-hour TTL.
 - **Highly available** — runs as multiple replicas behind your load balancer. Config changes propagate to all replicas in seconds.
 
 ## Hooks
