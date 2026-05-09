@@ -15,7 +15,7 @@ Day-2 operations for your mcpgate deployment.
 ## Health Check
 
 ```bash
-curl http://localhost:3001/health
+curl http://localhost:8642/health
 ```
 
 ```json
@@ -44,7 +44,7 @@ healthcheck:
 ## Prometheus Metrics
 
 ```bash
-curl http://localhost:3001/metrics
+curl http://localhost:8642/metrics
 ```
 
 Available metrics:
@@ -79,7 +79,7 @@ Edit config files on the volume mount, then reload without restart:
 
 ```bash
 # Reload ALL configs (extensions, hooks, access control, etc.)
-curl -X POST http://localhost:3001/admin/reload \
+curl -X POST http://localhost:8642/admin/reload \
   -H "Cookie: mcpgate_session=YOUR_SESSION"
 ```
 
@@ -135,18 +135,18 @@ The admin dashboard can import service definitions from any OpenAPI 3.x spec:
 
 ```bash
 # Disable an imported extension (prefix with _)
-curl -X POST http://localhost:3001/admin/extensions/api/disable-file \
+curl -X POST http://localhost:8642/admin/extensions/api/disable-file \
   -H "Cookie: mcpgate_session=YOUR_SESSION" \
   -H "Content-Type: application/json" \
   -d '{"filename": "statuspage_imported.yaml"}'
 
 # Re-enable it
-curl -X POST http://localhost:3001/admin/extensions/api/enable-file \
+curl -X POST http://localhost:8642/admin/extensions/api/enable-file \
   -H "Content-Type: application/json" \
   -d '{"filename": "_statuspage_imported.yaml"}'
 
 # Permanently delete (imported files only)
-curl -X POST http://localhost:3001/admin/extensions/api/delete-file \
+curl -X POST http://localhost:8642/admin/extensions/api/delete-file \
   -H "Content-Type: application/json" \
   -d '{"filename": "statuspage_imported.yaml"}'
 ```
@@ -243,7 +243,7 @@ Common issues:
 ### Config changes not applied
 
 ```bash
-curl -X POST http://localhost:3001/admin/reload
+curl -X POST http://localhost:8642/admin/reload
 ```
 
 If still not working, check file permissions on the volume mount.
