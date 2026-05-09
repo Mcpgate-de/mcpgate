@@ -4,6 +4,8 @@ Self-hosted MCP gateway — connect any AI to your company tools with policy hoo
 
 [Website](https://mcpgate.de) · [Docs](https://mcpgate.de/docs) · [Demo](https://demo.mcpgate.de) · [Docker Hub](https://hub.docker.com/r/mcpgate/mcpgate) · [Pricing](https://mcpgate.de/pricing)
 
+![mcpgate connects AI clients — Claude, Codex, ChatGPT — to your daily work tools (Jira, Confluence, GitHub, M365, Notion, Slack, Grafana, Figma, Google Workspace, GitLab, Sentry, and more) through a single self-hosted MCP gateway.](hero-constellation.jpg)
+
 This repository contains the self-hosting distribution for mcpgate: Docker Compose, configuration templates, hooks, and operations docs. Published container images are released via the CI/CD pipeline connected to this repository.
 
 ![One question. Three services. One answer.](demo.gif)
