@@ -16,7 +16,7 @@ Weeks later, the product team decides to prioritize that opportunity. The PM giv
 
 With all that context loaded, the AI drafts Jira tickets for the refinement. Hooks handle the boring parts — converting Markdown to Jira's ADF format, enforcing required fields, and blocking accidental overwrites. When the team meets, they walk through a working prototype, identify gaps, and make it actionable. Design, development, QA — everyone picks up where the last person left off, with full context.
 
-mcpgate connects your tools to your AI — Notion, Jira, GitLab, Figma, and many more. 22 integrations are built in, and you can add your own through OpenAPI import. Company hooks enforce your policies, while user hooks let individuals fine-tune rules directly from their AI client — hot-reloaded in seconds. mcpgate works as an MCP gateway, but also as a gate: your rules, your data. Eliminate loops between teams, safely manage context across handoffs, and let your team focus on building.
+mcpgate connects your tools to your AI — Notion, Jira, GitLab, Figma, Miro, and many more. 23 integrations are built in, and you can add your own through OpenAPI import or by pointing the gateway at any MCP server (OAuth / DCR / static-bearer / API-key / no-auth all supported). Company hooks enforce your policies, while user hooks let individuals fine-tune rules directly from their AI client — hot-reloaded in seconds. mcpgate works as an MCP gateway, but also as a gate: your rules, your data. Eliminate loops between teams, safely manage context across handoffs, and let your team focus on building.
 
 AI transformation is happening. Your tools, your data, and your context need to be connected — mcpgate is how you do it on your terms.
 
@@ -86,7 +86,7 @@ flowchart TB
 
     Post --> Services
 
-    Services["Slack · Jira · Confluence · GitLab · GitHub\nGoogle Workspace · Microsoft 365 · Notion · Figma\nGrafana · Sentry · Metabase · Amplitude\n+ 10 more"]
+    Services["Slack · Jira · Confluence · GitLab · GitHub\nGoogle Workspace · Microsoft 365 · Notion · Figma · Miro\nGrafana · Sentry · Metabase · Amplitude\n+ 9 more"]
 ```
 
 **How a request flows:**
@@ -110,7 +110,7 @@ SSO and service credentials are configured through the setup wizard or `.env`. S
 
 ## Services
 
-22 integrations. Enable a service by entering credentials in the setup wizard or `.env`. Only configured services activate.
+23 integrations. Enable a service by entering credentials in the setup wizard or `.env`. Services with Dynamic Client Registration (DCR) — currently Miro and Amplitude — activate immediately on connect with no operator-managed app credentials. Only configured services activate.
 
 | Service | What the AI can do |
 |---------|-------------------|
@@ -126,7 +126,8 @@ SSO and service credentials are configured through the setup wizard or `.env`. S
 | **Grafana** | Dashboards, logs, metrics |
 | **Sentry** | Error tracking, issue queries |
 | **Metabase** | BI dashboards, SQL queries, schema exploration |
-| **Amplitude** | Charts, active users, real-time analytics |
+| **Amplitude** | Charts, active users, real-time analytics (MCP proxy with DCR) |
+| **Miro** | Visual collaboration boards: items, frames, sticky notes, comments (MCP proxy with DCR) |
 | **BigQuery** | Datasets, tables, query execution |
 | **Jenkins** | Builds, pipelines, jobs |
 | **Transifex** | Translation projects, strings, languages |
