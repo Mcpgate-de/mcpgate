@@ -159,13 +159,15 @@ A quick read against three named neighbors (figures verified 2026-05-17 via GitH
 | | mcpgate | [Obot](https://github.com/obot-platform/obot) | [Docker MCP Gateway](https://github.com/docker/mcp-gateway) | [IBM ContextForge](https://github.com/IBM/mcp-context-forge) |
 |---|---|---|---|---|
 | License | BSL 1.1 (free ≤5 users) | MIT | MIT | Apache-2.0 |
-| GitHub stars | 0 | 777 | 1,392 | 3,718 |
+| Stage of life (stars / forks, 2026-05-17) | public since 2026-03, 1 reference customer | 777 / 164 | 1,392 / 244 | 3,719 / 661 |
 | Self-hosted | ✅ | ✅ | ✅ (Docker CLI plugin) | ✅ |
-| **PII pseudonymization + rehydration** | ✅ built-in | ❌ | ❌ | ❌ |
-| **User-level policy hooks** | ✅ YAML, hot-reload | ❌ (operator RBAC) | ❌ (profile allowlists) | partial (per docs) |
-| Built-in service integrations | 22 pre-configured | curated set | composes from Docker MCP catalog (~200 servers) | federated registry |
-| OAuth / DCR / PKCE / static-bearer / no-auth | unified | OAuth 2.1 | depends per server | unified |
-| Kubernetes-native | possible, no official Helm chart | ✅ Helm chart | Docker-only (CE/Desktop) | ✅ (enterprise focus) |
+| **PII pseudonymization with rehydration** | ✅ built-in | ❌ (not shipped — could be added on the OSS code) | ❌ (out of scope) | ❌ (not in README) |
+| **User-level policy hooks** | ✅ YAML, hot-reloaded | ❌ (operator RBAC) | ❌ (profile allowlists) | RBAC via JWT scopes (operator) |
+| Built-in service integrations | 22 hand-written native YAML | curated set | composes from Docker MCP catalog (~200) | federated MCP / A2A / REST / gRPC |
+| OAuth / DCR / PKCE / static-bearer / no-auth | unified | OAuth 2.1 | depends per server in catalog | unified, JWT-scoped |
+| Kubernetes-native | possible, no official Helm chart | ✅ Helm chart | Docker-only (CE / Desktop) | ✅ + Helm + AWS / Azure / GCP / IBM Cloud / OpenShift |
+
+The ❌ cells above are about what each project *ships out of the box*, not an architectural ceiling — Obot, Docker MCPG, and ContextForge are all open enough that any of those features can be built on top of them with engineering investment. The trade-off is who does the engineering and who carries the maintenance. Each comparison page on the website walks through that trade-off explicitly.
 
 Detailed honest comparisons live on the website:
 - [mcpgate vs Obot](https://mcpgate.de/compare/mcpgate-vs-obot/)
