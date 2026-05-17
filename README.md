@@ -1,8 +1,10 @@
-# mcpgate
+# mcpgate — Privacy-First Self-Hosted MCP Gateway
 
-Self-hosted MCP gateway — connect any AI to your company tools with policy hooks.
+> Connect Claude, ChatGPT, Codex, Gemini, and any MCP-compatible agent to **22+ enterprise tools** (Jira, GitLab, GitHub, Notion, Confluence, Slack, Google Workspace, Microsoft 365, Grafana, Sentry, Figma, Miro, …) through a single self-hosted MCP gateway. Built-in **PII pseudonymization** with on-prem rehydration, **two-layer policy hooks** (company + user, YAML, hot-reloaded), zero data at rest, BSL 1.1 license (free for up to 5 users).
 
-[Website](https://mcpgate.de) · [Docs](https://mcpgate.de/docs) · [Demo](https://demo.mcpgate.de) · [Docker Hub](https://hub.docker.com/r/mcpgate/mcpgate) · [Pricing](https://mcpgate.de/pricing)
+[Website](https://mcpgate.de) · [Docs](https://mcpgate.de/docs/) · [Demo](https://demo.mcpgate.de) · [Pricing](https://mcpgate.de/pricing/) · [Compare](https://mcpgate.de/compare/) · [Docker Hub](https://hub.docker.com/r/mcpgate/mcpgate)
+
+[![License: BSL 1.1](https://img.shields.io/badge/License-BSL%201.1-blue.svg)](LICENSE) [![Self-hosted](https://img.shields.io/badge/deployment-self--hosted-green.svg)](https://mcpgate.de/docs/quickstart/) [![Docker](https://img.shields.io/badge/docker-mcpgate%2Fmcpgate-2496ED.svg?logo=docker)](https://hub.docker.com/r/mcpgate/mcpgate)
 
 ![mcpgate connects AI clients — Claude, Codex, ChatGPT — to your daily work tools (Jira, Confluence, GitHub, M365, Notion, Slack, Grafana, Figma, Google Workspace, GitLab, Sentry, and more) through a single self-hosted MCP gateway.](hero-constellation.jpg)
 
@@ -147,6 +149,22 @@ Built-in safeguards that don't need configuration:
 - **Write-Safety Defaults** — destructive actions (delete, archive, dashboard PUTs) require explicit `confirmed=true` or `force=true`. Response size caps prevent accidental mass operations.
 - **Stores nothing in transit** — mcpgate is a pass-through. Tool actions are auditable in your own tools (Jira, GitLab, Slack) where they happen. The only data we hold is the encrypted pseudonym mapping for PII rehydration, with a 24-hour TTL.
 - **Highly available** — runs as multiple replicas behind your load balancer. Config changes propagate to all replicas in seconds.
+
+## How mcpgate compares
+
+There are ~15 self-hosted MCP gateway projects in the open as of mid-2026 (`microsoft/mcp-gateway`, `IBM/mcp-context-forge`, `docker/mcp-gateway`, `obot-platform/obot`, `lunar.dev` MCPX, `agentic-community/mcp-gateway-registry`, …). Most overlap on the gateway surface; the differences are in license, deployment story, and what they do beyond routing.
+
+| | mcpgate | Obot | Docker MCP Gateway | IBM ContextForge |
+|---|---|---|---|---|
+| Self-hosted | ✅ | ✅ | ✅ (Docker Desktop) | ✅ |
+| **PII pseudonymization + rehydration** | ✅ built-in | ❌ | ❌ | ❌ |
+| **User-level policy hooks** | ✅ YAML, hot-reload | ❌ (operator RBAC) | ❌ | partial |
+| Built-in service integrations | 22 pre-configured | curated set | composes from registry | composes |
+| OAuth/DCR/PKCE/static-bearer/no-auth | unified | OAuth 2.1 | depends per server | unified |
+| Kubernetes-native | possible, no Helm | ✅ Helm chart | Docker-only | enterprise feature |
+| License | BSL 1.1 (free ≤5 users) | MIT | Apache 2.0 | Apache 2.0 |
+
+Detailed honest comparisons live on the website: [mcpgate vs Obot](https://mcpgate.de/compare/mcpgate-vs-obot/) (more on the way). Where another project is the better fit for your team, we say so.
 
 ## Hooks
 
