@@ -152,19 +152,27 @@ Built-in safeguards that don't need configuration:
 
 ## How mcpgate compares
 
-There are ~15 self-hosted MCP gateway projects in the open as of mid-2026 (`microsoft/mcp-gateway`, `IBM/mcp-context-forge`, `docker/mcp-gateway`, `obot-platform/obot`, `lunar.dev` MCPX, `agentic-community/mcp-gateway-registry`, …). Most overlap on the gateway surface; the differences are in license, deployment story, and what they do beyond routing.
+The MCP-gateway space is crowded. The [`e2b-dev/awesome-mcp-gateways`](https://github.com/e2b-dev/awesome-mcp-gateways) catalog (April 2026) lists **21 open-source** and **23 commercial** entries, and that list isn't exhaustive — it doesn't include all the AI-runtime projects that ship gateway functionality. Most projects overlap on the routing surface; the meaningful differences are in license, deployment story, and what they do beyond routing.
 
-| | mcpgate | Obot | Docker MCP Gateway | IBM ContextForge |
+A quick read against three named neighbors (figures verified 2026-05-17 via GitHub API):
+
+| | mcpgate | [Obot](https://github.com/obot-platform/obot) | [Docker MCP Gateway](https://github.com/docker/mcp-gateway) | [IBM ContextForge](https://github.com/IBM/mcp-context-forge) |
 |---|---|---|---|---|
-| Self-hosted | ✅ | ✅ | ✅ (Docker Desktop) | ✅ |
+| License | BSL 1.1 (free ≤5 users) | MIT | MIT | Apache-2.0 |
+| GitHub stars | 0 | 777 | 1,392 | 3,718 |
+| Self-hosted | ✅ | ✅ | ✅ (Docker CLI plugin) | ✅ |
 | **PII pseudonymization + rehydration** | ✅ built-in | ❌ | ❌ | ❌ |
-| **User-level policy hooks** | ✅ YAML, hot-reload | ❌ (operator RBAC) | ❌ | partial |
-| Built-in service integrations | 22 pre-configured | curated set | composes from registry | composes |
-| OAuth/DCR/PKCE/static-bearer/no-auth | unified | OAuth 2.1 | depends per server | unified |
-| Kubernetes-native | possible, no Helm | ✅ Helm chart | Docker-only | enterprise feature |
-| License | BSL 1.1 (free ≤5 users) | MIT | Apache 2.0 | Apache 2.0 |
+| **User-level policy hooks** | ✅ YAML, hot-reload | ❌ (operator RBAC) | ❌ (profile allowlists) | partial (per docs) |
+| Built-in service integrations | 22 pre-configured | curated set | composes from Docker MCP catalog (~200 servers) | federated registry |
+| OAuth / DCR / PKCE / static-bearer / no-auth | unified | OAuth 2.1 | depends per server | unified |
+| Kubernetes-native | possible, no official Helm chart | ✅ Helm chart | Docker-only (CE/Desktop) | ✅ (enterprise focus) |
 
-Detailed honest comparisons live on the website: [mcpgate vs Obot](https://mcpgate.de/compare/mcpgate-vs-obot/) (more on the way). Where another project is the better fit for your team, we say so.
+Detailed honest comparisons live on the website:
+- [mcpgate vs Obot](https://mcpgate.de/compare/mcpgate-vs-obot/)
+- [mcpgate vs Docker MCP Gateway](https://mcpgate.de/compare/mcpgate-vs-docker-mcp-gateway/)
+- [All comparisons](https://mcpgate.de/compare/) (IBM ContextForge, MintMCP, Lunar.dev MCPX coming next)
+
+Where another project is the better fit for your team, we say so.
 
 ## Hooks
 
