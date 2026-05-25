@@ -1,6 +1,6 @@
 # mcpgate — Privacy-First Self-Hosted MCP Gateway
 
-> Connect Claude, ChatGPT, Codex, Gemini, and any MCP-compatible agent to **22+ enterprise tools** (Jira, GitLab, GitHub, Notion, Confluence, Slack, Google Workspace, Microsoft 365, Grafana, Sentry, Figma, Miro, …) through a single self-hosted MCP gateway. Built-in **PII pseudonymization** with on-prem rehydration, **two-layer policy hooks** (company + user, YAML, hot-reloaded), zero data at rest, BSL 1.1 license (free for up to 5 users).
+> Connect Claude, ChatGPT, Codex, Gemini, and any MCP-compatible agent to **23+ enterprise tools** (Jira, GitLab, GitHub, Notion, Confluence, Slack, Google Workspace, Microsoft 365, Google Ads, Grafana, Sentry, Figma, Miro, …) through a single self-hosted MCP gateway. Built-in **PII pseudonymization** with on-prem rehydration, **two-layer policy hooks** (company + user, YAML, hot-reloaded), zero data at rest, BSL 1.1 license (free for up to 5 users).
 
 [Website](https://mcpgate.de) · [Docs](https://mcpgate.de/docs/) · [Demo](https://demo.mcpgate.de) · [Pricing](https://mcpgate.de/pricing/) · [Compare](https://mcpgate.de/compare/) · [Docker Hub](https://hub.docker.com/r/mcpgate/mcpgate)
 
@@ -112,7 +112,7 @@ SSO and service credentials are configured through the setup wizard or `.env`. S
 
 ## Services
 
-22 integrations. Enable a service by entering credentials in the setup wizard or `.env`. Only configured services activate.
+23 integrations. Enable a service by entering credentials in the setup wizard or `.env`. Only configured services activate.
 
 | Service | What the AI can do |
 |---------|-------------------|
@@ -130,6 +130,7 @@ SSO and service credentials are configured through the setup wizard or `.env`. S
 | **Metabase** | BI dashboards, SQL queries, schema exploration |
 | **Amplitude** | Charts, active users, real-time analytics |
 | **BigQuery** | Datasets, tables, query execution |
+| **Google Ads** | Accounts, campaigns, ad groups, reporting (read-only) |
 | **Jenkins** | Builds, pipelines, jobs |
 | **Transifex** | Translation projects, strings, languages |
 | **AppStore Connect** | App metadata, builds, reviews |
