@@ -197,9 +197,22 @@ def main() -> int:
     audit_rows = []
     throughput_calls = []  # (ts, user, tool, action, client, bytes_total, failed)
 
-    # 1) Steady baseline traffic across all users
-    for _ in range(int(args.events * 0.7)):
-        ts = _random_ts_in_window(rng, window_start, now)
+    # Recency split — the dashboard's filter buttons start at "30 min" / "1 h",
+    # so the screenshot needs density in the last hour AND historical depth.
+    # 70% of baseline goes into the last 60 min, 30% spreads across the older
+    # part of the window. That way any filter from "30 min" through "This week"
+    # has visible traffic.
+    recent_start = now - timedelta(minutes=60)
+    historic_end = recent_start
+
+    # 1) Steady baseline traffic, recency-weighted
+    total_baseline = int(args.events * 0.7)
+    n_recent = int(total_baseline * 0.7)
+    for i in range(total_baseline):
+        if i < n_recent:
+            ts = _random_ts_in_window(rng, recent_start, now)
+        else:
+            ts = _random_ts_in_window(rng, window_start, historic_end)
         user = rng.choice(DEMO_USERS)["hash"]
         tool, action = rng.choice(TOOL_ACTIONS)
         client = rng.choice(CLIENTS)
@@ -252,14 +265,14 @@ def main() -> int:
                 )
             )
 
-    # 3) The DLP-shaped outlier: a single user, between 02:30 and 03:30,
-    #    exports a stack of Drive files. The throughput dashboard's
-    #    threshold alert should fire on this.
-    exfil_anchor = (now - timedelta(hours=23)).replace(minute=58, second=49, microsecond=0)
-    # Push to 3 AM local-ish — works regardless of wallclock since the
-    # window is the last 24 h
+    # 3) The DLP-shaped outlier: a single user exports a stack of Drive
+    #    files within the last 45 minutes — visible in every filter window
+    #    from "1 h" upward, and the second half is in "30 min" too.
+    exfil_start = now - timedelta(minutes=45)
     for i in range(8):
-        ts = (exfil_anchor + timedelta(minutes=2 * i, seconds=rng.randint(0, 59))).isoformat()
+        # Spread 8 exports across the 45 min window, 5–6 min apart
+        ts = (exfil_start + timedelta(minutes=5 * i + rng.randint(0, 2),
+                                       seconds=rng.randint(0, 59))).isoformat()
         bytes_out = rng.randint(7_000_000, 12_000_000)  # 7–12 MB per export
         bytes_in = rng.randint(400, 800)
         audit_rows.append(
@@ -295,9 +308,11 @@ def main() -> int:
         )
 
     # 4) Throughput-alert rows on the outlier — what the Slack alerter
-    #    would have written as it fired every 5 min for 30 min.
+    #    would have written as it fired every 5 min for 30 min. Anchored
+    #    so the most recent alert is ~now-5min, oldest is ~now-30min.
+    alerts_start = now - timedelta(minutes=30)
     for offset_min in range(0, 30, 5):
-        ts = (exfil_anchor + timedelta(minutes=10 + offset_min)).isoformat()
+        ts = (alerts_start + timedelta(minutes=offset_min)).isoformat()
         audit_rows.append(
             (
                 ts,
@@ -404,9 +419,10 @@ def main() -> int:
     conn.close()
     print()
     print("Done. Open the Admin UI:")
-    print("  Audit Log  → see the 24h timeline; filter by RED for the alert rows")
+    print("  Audit Log  → 24h timeline; filter by RED for the throughput alerts")
     print("  Throughput → outlier-user (hash starting a4e8c6b2) tops the list,")
-    print("               click in to see the 3-AM Drive exports concentrated in one hour")
+    print("               with the Drive-export burst in the last ~45 minutes —")
+    print("               visible in every filter window from '30 min' upward")
     return 0
 
 
