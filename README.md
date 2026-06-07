@@ -88,7 +88,7 @@ flowchart TB
 
     Post --> Services
 
-    Services["Slack · Jira · Confluence · GitLab · GitHub\nGoogle Workspace · Microsoft 365 · Notion · Figma\nGrafana · Sentry · Metabase · Amplitude\n+ 10 more"]
+    Services["Slack · Jira · Confluence · GitLab · GitHub\nGoogle Workspace · Microsoft 365 · Notion · Figma\nGrafana · Sentry · Metabase · Amplitude · BigQuery\nGoogle Search Console · Sistrix · Google Ads · …"]
 ```
 
 **How a request flows:**
@@ -112,35 +112,64 @@ SSO and service credentials are configured through the setup wizard or `.env`. S
 
 ## Services
 
-23 integrations. Enable a service by entering credentials in the setup wizard or `.env`. Only configured services activate.
+Enable a service by entering credentials in the setup wizard or `.env`. Only configured services activate. The table below is the **curated** surface — each service also exposes a long-tail of auto-generated actions discovered on demand (see "Long-tail discovery" below).
 
-| Service | What the AI can do |
-|---------|-------------------|
+### Productivity & Collaboration
+
+| Service | What your agent can do |
+|---------|-------------------------|
 | **Google Workspace** | Gmail, Calendar, Drive, Docs, Sheets, Slides |
-| **Microsoft 365** | Outlook, Teams, OneDrive, SharePoint, Calendar |
-| **Slack** | Search messages, read channels, post messages |
-| **Jira** | Create/update issues, transitions, worklogs, comments |
+| **Microsoft 365** | Outlook, Teams, OneDrive, SharePoint, Calendar, Excel |
+| **Slack** | Search messages, read channels, post messages, manage reminders |
+| **Notion** | Pages, databases, blocks, comments, file uploads |
 | **Confluence** | Spaces, pages, comments, CQL search |
-| **GitLab** | Issues, merge requests, pipelines, deployments, CI/CD |
-| **GitHub** | Issues, pull requests, code search, releases |
-| **Notion** | Pages, databases, blocks, comments |
-| **Figma** | Files, components, comments, dev resources |
-| **Grafana** | Dashboards, logs, metrics |
-| **Sentry** | Error tracking, issue queries |
-| **Metabase** | BI dashboards, SQL queries, schema exploration |
-| **Amplitude** | Charts, active users, real-time analytics |
-| **BigQuery** | Datasets, tables, query execution |
-| **Google Ads** | Accounts, campaigns, ad groups, reporting (read-only) |
-| **Jenkins** | Builds, pipelines, jobs |
-| **Transifex** | Translation projects, strings, languages |
-| **AppStore Connect** | App metadata, builds, reviews |
-| **Google Play** | App listings, releases, reviews |
-| **Supernova** | Design tokens, components |
+
+### Engineering & Operations
+
+| Service | What your agent can do |
+|---------|-------------------------|
+| **Jira** | Create/update issues, transitions, worklogs, sprints, comments |
+| **GitLab** | Issues, merge requests, pipelines, deployments, CI/CD variables, code search |
+| **GitHub** | Issues, pull requests, releases, code search across repositories |
+| **Jenkins** | Builds, pipelines, job triggers, log reading |
+| **Sentry** | Error tracking, issue queries, releases, statistics |
+| **Grafana** | Dashboards, Loki log search, alert history, metrics |
+
+### Marketing, SEO & Analytics
+
+| Service | What your agent can do |
+|---------|-------------------------|
+| **Google Search Console** | Search analytics, URL inspection, sitemap management, indexing requests |
+| **Sistrix** | Visibility Index, keyword rankings, SERP changes, competitor backlinks |
+| **BigQuery** | SQL queries against your data warehouse (Adjust, GA exports, business reports) |
+| **Google Ads** | Accounts, campaigns, ad groups, ad performance and reporting (read-only) |
+| **Amplitude** | Charts, active users, cohorts, experiments, session replays |
+| **Metabase** | BI dashboards, native SQL, schema exploration |
+
+### Design & Creative
+
+| Service | What your agent can do |
+|---------|-------------------------|
+| **Figma** | Files, components, styles, comments, dev resources |
+| **Supernova** | Design tokens, components, documentation |
+
+### Workplace & Content
+
+| Service | What your agent can do |
+|---------|-------------------------|
 | **WordPress** | Posts, pages, Yoast SEO metadata (multi-instance) |
+| **Transifex** | Translation projects, strings, languages, reviews |
 | **Home Assistant** | Office sensors, heating control |
 | **Joan** | Desk & meeting room booking |
 
-Plus self-management tools (gateway config, issue reporting) and OpenAPI import for anything else.
+### App Stores
+
+| Service | What your agent can do |
+|---------|-------------------------|
+| **AppStore Connect** | App reviews, ratings, versions, builds, TestFlight testers |
+| **Google Play** | App reviews, ratings, release tracks |
+
+Plus self-management tools (gateway config, issue reporting) and OpenAPI import for anything else. See [`docs/services/`](https://mcpgate.de/docs/services/) for example questions a customer can ask their agent per service.
 
 ## Compliance & Safety
 
