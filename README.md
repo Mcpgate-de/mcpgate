@@ -1,6 +1,6 @@
 # mcpgate — Privacy-First Self-Hosted MCP Gateway
 
-> Connect Claude, ChatGPT, Codex, Gemini, and any MCP-compatible agent to **23+ enterprise tools** (Jira, GitLab, GitHub, Notion, Confluence, Slack, Google Workspace, Microsoft 365, Google Ads, Grafana, Sentry, Figma, Miro, …) through a single self-hosted MCP gateway. Built-in **PII pseudonymization** with on-prem rehydration, **two-layer policy hooks** (company + user, YAML, hot-reloaded), zero data at rest, BSL 1.1 license (free for up to 5 users).
+> Connect Claude, ChatGPT, Codex, Gemini, and any MCP-compatible agent to **29 enterprise tools** (Jira, GitLab, GitHub, Notion, Confluence, Slack, Google Workspace, Microsoft 365, Google Ads, Grafana, Sentry, Figma, Miro, …) through a single self-hosted MCP gateway. Built-in **PII pseudonymization** with on-prem rehydration, **two-layer policy hooks** (company + user, YAML, hot-reloaded), zero data at rest, BSL 1.1 license (free for up to 5 users).
 
 [Website](https://mcpgate.de) · [Docs](https://mcpgate.de/docs/) · [Demo](https://demo.mcpgate.de) · [Pricing](https://mcpgate.de/pricing/) · [Compare](https://mcpgate.de/compare/) · [Docker Hub](https://hub.docker.com/r/mcpgate/mcpgate)
 
@@ -18,7 +18,7 @@ Weeks later, the product team decides to prioritize that opportunity. The PM giv
 
 With all that context loaded, the AI drafts Jira tickets for the refinement. Hooks handle the boring parts — converting Markdown to Jira's ADF format, enforcing required fields, and blocking accidental overwrites. When the team meets, they walk through a working prototype, identify gaps, and make it actionable. Design, development, QA — everyone picks up where the last person left off, with full context.
 
-mcpgate connects your tools to your AI — Notion, Jira, GitLab, Figma, and many more. 22 integrations are built in, and you can add your own through OpenAPI import. Company hooks enforce your policies, while user hooks let individuals fine-tune rules directly from their AI client — hot-reloaded in seconds. mcpgate works as an MCP gateway, but also as a gate: your rules, your data. Eliminate loops between teams, safely manage context across handoffs, and let your team focus on building.
+mcpgate connects your tools to your AI — Notion, Jira, GitLab, Figma, and many more. 29 integrations are built in, and you can add your own through OpenAPI import. Company hooks enforce your policies, while user hooks let individuals fine-tune rules directly from their AI client — hot-reloaded in seconds. mcpgate works as an MCP gateway, but also as a gate: your rules, your data. Eliminate loops between teams, safely manage context across handoffs, and let your team focus on building.
 
 AI transformation is happening. Your tools, your data, and your context need to be connected — mcpgate is how you do it on your terms.
 
@@ -143,6 +143,9 @@ Enable a service by entering credentials in the setup wizard or `.env`. Only con
 | **Sistrix** | Visibility Index, keyword rankings, SERP changes, competitor backlinks |
 | **BigQuery** | SQL queries against your data warehouse (Adjust, GA exports, business reports) |
 | **Google Ads** | Accounts, campaigns, ad groups, ad performance and reporting (read-only) |
+| **Google Analytics** | GA4 traffic, engagement and conversion reports, realtime data |
+| **Google Tag Manager** | Containers, workspaces, tags, triggers, variables — publishing stays a human step in the GTM UI |
+| **Bing Webmaster** | Bing/Copilot search performance, query & page stats, crawl/index data |
 | **Amplitude** | Charts, active users, cohorts, experiments, session replays |
 | **Metabase** | BI dashboards, native SQL, schema exploration |
 
@@ -151,6 +154,7 @@ Enable a service by entering credentials in the setup wizard or `.env`. Only con
 | Service | What your agent can do |
 |---------|-------------------------|
 | **Figma** | Files, components, styles, comments, dev resources |
+| **Miro** | Boards, diagrams, docs, comments, widgets (via the official Miro MCP server) |
 | **Supernova** | Design tokens, components, documentation |
 
 ### Workplace & Content
@@ -167,7 +171,7 @@ Enable a service by entering credentials in the setup wizard or `.env`. Only con
 | Service | What your agent can do |
 |---------|-------------------------|
 | **AppStore Connect** | App reviews, ratings, versions, builds, TestFlight testers |
-| **Google Play** | App reviews, ratings, release tracks |
+| **Google Play** | App reviews, ratings, release tracks, crash & ANR vitals, install & ASO reports |
 
 Plus self-management tools (gateway config, issue reporting) and OpenAPI import for anything else. See [`docs/services/`](https://mcpgate.de/docs/services/) for example questions a customer can ask their agent per service.
 
@@ -193,7 +197,7 @@ A quick read against three named neighbors (figures verified 2026-05-17 via GitH
 | Self-hosted | ✅ | ✅ | ✅ (Docker CLI plugin) | ✅ |
 | **PII pseudonymization with rehydration** | ✅ built-in | ❌ (not shipped — could be added on the OSS code) | ❌ (out of scope) | ❌ (not in README) |
 | **User-level policy hooks** | ✅ YAML, hot-reloaded | ❌ (operator RBAC) | ❌ (profile allowlists) | RBAC via JWT scopes (operator) |
-| Built-in service integrations | 22 hand-written native YAML | curated set | composes from Docker MCP catalog (~200) | federated MCP / A2A / REST / gRPC |
+| Built-in service integrations | 29 (hand-written native YAML + official-MCP proxies) | curated set | composes from Docker MCP catalog (~200) | federated MCP / A2A / REST / gRPC |
 | OAuth / DCR / PKCE / static-bearer / no-auth | unified | OAuth 2.1 | depends per server in catalog | unified, JWT-scoped |
 | Kubernetes-native | possible, no official Helm chart | ✅ Helm chart | Docker-only (CE / Desktop) | ✅ + Helm + AWS / Azure / GCP / IBM Cloud / OpenShift |
 
