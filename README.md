@@ -1,6 +1,6 @@
 # mcpgate — Privacy-First Self-Hosted MCP Gateway
 
-> Connect Claude, ChatGPT, Codex, Gemini, and any MCP-compatible agent to **29 enterprise tools** (Jira, GitLab, GitHub, Notion, Confluence, Slack, Google Workspace, Microsoft 365, Google Ads, Grafana, Sentry, Figma, Miro, …) through a single self-hosted MCP gateway. Built-in **PII pseudonymization** with on-prem rehydration, **two-layer policy hooks** (company + user, YAML, hot-reloaded), zero data at rest, BSL 1.1 license (free for up to 5 users).
+> Connect Claude, ChatGPT, Codex, Gemini, and any MCP-compatible agent to **36 enterprise tools** (Jira, GitLab, GitHub, Notion, Confluence, Slack, Google Workspace, Microsoft 365, HubSpot, Pipedrive, Google Ads, Grafana, Sentry, Figma, Miro, …) through a single self-hosted MCP gateway. Built-in **PII pseudonymization** with on-prem rehydration, **two-layer policy hooks** (company + user, YAML, hot-reloaded), zero data at rest, BSL 1.1 license (free for up to 5 users).
 
 [Website](https://mcpgate.de) · [Docs](https://mcpgate.de/docs/) · [Demo](https://demo.mcpgate.de) · [Pricing](https://mcpgate.de/pricing/) · [Compare](https://mcpgate.de/compare/) · [Docker Hub](https://hub.docker.com/r/mcpgate/mcpgate)
 
@@ -18,7 +18,7 @@ Weeks later, the product team decides to prioritize that opportunity. The PM giv
 
 With all that context loaded, the AI drafts Jira tickets for the refinement. Hooks handle the boring parts — converting Markdown to Jira's ADF format, enforcing required fields, and blocking accidental overwrites. When the team meets, they walk through a working prototype, identify gaps, and make it actionable. Design, development, QA — everyone picks up where the last person left off, with full context.
 
-mcpgate connects your tools to your AI — Notion, Jira, GitLab, Figma, and many more. 29 integrations are built in, and you can add your own through OpenAPI import. Company hooks enforce your policies, while user hooks let individuals fine-tune rules directly from their AI client — hot-reloaded in seconds. mcpgate works as an MCP gateway, but also as a gate: your rules, your data. Eliminate loops between teams, safely manage context across handoffs, and let your team focus on building.
+mcpgate connects your tools to your AI — Notion, Jira, GitLab, Figma, HubSpot, Pipedrive, and many more. 36 integrations are built in, and you can add your own through OpenAPI import. Company hooks enforce your policies, while user hooks let individuals fine-tune rules directly from their AI client — hot-reloaded in seconds. mcpgate works as an MCP gateway, but also as a gate: your rules, your data. Eliminate loops between teams, safely manage context across handoffs, and let your team focus on building.
 
 AI transformation is happening. Your tools, your data, and your context need to be connected — mcpgate is how you do it on your terms.
 
@@ -88,7 +88,7 @@ flowchart TB
 
     Post --> Services
 
-    Services["Slack · Jira · Confluence · GitLab · GitHub\nGoogle Workspace · Microsoft 365 · Notion · Figma\nGrafana · Sentry · Metabase · Amplitude · BigQuery\nGoogle Search Console · Sistrix · Google Ads · …"]
+    Services["Slack · Jira · Confluence · GitLab · GitHub\nGoogle Workspace · Microsoft 365 · Notion · Figma · HubSpot\nGrafana · Sentry · Metabase · Amplitude · BigQuery\nGoogle Search Console · Sistrix · Google Ads · Pipedrive · …"]
 ```
 
 **How a request flows:**
@@ -122,6 +122,7 @@ Enable a service by entering credentials in the setup wizard or `.env`. Only con
 | **Microsoft 365** | Outlook, Teams, OneDrive, SharePoint, Calendar, Excel |
 | **Slack** | Search messages, read channels, post messages, manage reminders |
 | **Notion** | Pages, databases, blocks, comments, file uploads |
+| **Notion MCP** | Notion's hosted MCP server — full-content and Notion AI search |
 | **Confluence** | Spaces, pages, comments, CQL search |
 
 ### Engineering & Operations
@@ -134,6 +135,7 @@ Enable a service by entering credentials in the setup wizard or `.env`. Only con
 | **Jenkins** | Builds, pipelines, job triggers, log reading |
 | **Sentry** | Error tracking, issue queries, releases, statistics |
 | **Grafana** | Dashboards, Loki log search, alert history, metrics |
+| **Bug & Feature Reports** | Let users file bug reports and feature requests via the agent |
 
 ### Marketing, SEO & Analytics
 
@@ -149,11 +151,19 @@ Enable a service by entering credentials in the setup wizard or `.env`. Only con
 | **Amplitude** | Charts, active users, cohorts, experiments, session replays |
 | **Metabase** | BI dashboards, native SQL, schema exploration |
 
+### Sales & CRM
+
+| Service | What your agent can do |
+|---------|-------------------------|
+| **HubSpot** | Contacts, companies, deals, tickets, engagement activities — via HubSpot's MCP server |
+| **Pipedrive** | Deals, persons, organizations, activities, pipelines, leads, notes |
+
 ### Design & Creative
 
 | Service | What your agent can do |
 |---------|-------------------------|
 | **Figma** | Files, components, styles, comments, dev resources |
+| **Figma MCP** | Figma's hosted MCP server — design-to-code context, design tokens, write-to-canvas |
 | **Miro** | Boards, diagrams, docs, comments, widgets (via the official Miro MCP server) |
 | **Supernova** | Design tokens, components, documentation |
 
@@ -171,7 +181,9 @@ Enable a service by entering credentials in the setup wizard or `.env`. Only con
 | Service | What your agent can do |
 |---------|-------------------------|
 | **AppStore Connect** | App reviews, ratings, versions, builds, TestFlight testers |
-| **Google Play** | App reviews, ratings, release tracks, crash & ANR vitals, install & ASO reports |
+| **Google Play** | Android app reviews, ratings, release track management |
+| **Google Play Vitals** | Android crash rate, ANR rate, errors and performance metrics (daily) |
+| **Google Play Reports** | Play Console download reports — installs, store performance, acquisitions (CSV) |
 
 Plus self-management tools (gateway config, issue reporting) and OpenAPI import for anything else. See [`docs/services/`](https://mcpgate.de/docs/services/) for example questions a customer can ask their agent per service.
 
