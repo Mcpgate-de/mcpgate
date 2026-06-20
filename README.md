@@ -1,6 +1,6 @@
 # mcpgate — Privacy-First Self-Hosted MCP Gateway
 
-> Connect Claude, ChatGPT, Codex, Gemini, and any MCP-compatible agent to **36 enterprise tools** (Jira, GitLab, GitHub, Notion, Confluence, Slack, Google Workspace, Microsoft 365, HubSpot, Pipedrive, Google Ads, Grafana, Sentry, Figma, Miro, …) through a single self-hosted MCP gateway. Built-in **PII pseudonymization** with on-prem rehydration, **two-layer policy hooks** (company + user, YAML, hot-reloaded), zero data at rest, BSL 1.1 license (free for up to 5 users).
+> Connect Claude, ChatGPT, Codex, Gemini, and any MCP-compatible agent to **36 enterprise tools** (Jira, GitLab, GitHub, Notion, Confluence, Slack, Google Workspace, Microsoft 365, HubSpot, Pipedrive, Google Ads, Grafana, Sentry, Figma, Miro, …) through a single self-hosted MCP gateway. Built-in **PII pseudonymization** with on-prem rehydration, **two-layer policy hooks** (company + user, YAML, hot-reloaded), and a gateway-served **Context Map** so your agents answer with your company's wiring instead of guessing. Zero data at rest, BSL 1.1 license (free for up to 5 users).
 
 [Website](https://mcpgate.de) · [Docs](https://mcpgate.de/docs/) · [Demo](https://demo.mcpgate.de) · [Pricing](https://mcpgate.de/pricing/) · [Compare](https://mcpgate.de/compare/) · [Docker Hub](https://hub.docker.com/r/mcpgate/mcpgate)
 
@@ -186,6 +186,21 @@ Enable a service by entering credentials in the setup wizard or `.env`. Only con
 | **Google Play Reports** | Play Console download reports — installs, store performance, acquisitions (CSV) |
 
 Plus self-management tools (gateway config, issue reporting) and OpenAPI import for anything else. See [`docs/services/`](https://mcpgate.de/docs/services/) for example questions a customer can ask their agent per service.
+
+## Context Map
+
+CI/CD for what your AI knows about your company. A curated Markdown corpus — which systems and repos exist, who owns what, how things connect — served from the gateway to every connected AI client. The gateway syncs and serves it; AI runs on the consumers, not on the map itself.
+
+- **Anchor** — point the gateway at a git repo (audited, diffable, revertable) or paste content inline (zero git). A configurable poll keeps it fresh; an optional webhook with a per-tenant secret triggers immediate reindex. A content-push REST endpoint lets other systems POST entries directly.
+- **`map_read`** — a new MCP tool every connected AI client gets. BM25 search over the page index; fetch a single page by id. A one-line session-hint nudges the model to consult the map for *where does X live / who owns it / how does it connect* questions instead of guessing.
+- **Freshness rides every tool response** — a tiny version-key compare on each tool call; on change, the tag-scoped delta attaches to the tool's response once per session per change. Covers passthrough tools too (Jira, Slack, Notion, GitLab, …), so a working session notices a mid-session map change on its very next call — no client interrupt, no re-send.
+- **Gap feed** — `map_read` queries that come back empty are logged to a bounded, de-duplicated, PII-scrubbed feed with frequency aggregation. The raw material for proposing new pages; nothing is written automatically.
+- **`map_write`** — AI agents can correct stale pages directly. Every write (inline edit, content-push REST, `map_write`) passes the same gate: leak-scan + size/format validation + attribution. In repo mode the gateway commits and pushes through its own identity; the served copy reindexes immediately.
+- **Operator-only by default** — the `map_read` / `map_write` tools and the freshness beacon are hidden from `external` / `viewer` roles. The admin viewer is XSS-hardened; git credential is tokenless at rest; only allowlisted git hosts accepted; symlink escapes refused and logged.
+
+The whole point: shared organisational knowledge that personal AI memory can't solve, in plain text you own, kept fresh because the gateway notices when it gets used and what it misses.
+
+See [`docs/admin/context-map/`](https://mcpgate.de/docs/admin/context-map/) for the full operator reference.
 
 ## Compliance & Safety
 
