@@ -1,6 +1,6 @@
 # mcpgate — Privacy-First Self-Hosted MCP Gateway
 
-> Connect Claude, ChatGPT, Codex, Gemini, and any MCP-compatible agent to **39 enterprise tools** (Jira, GitLab, GitHub, Notion, Confluence, Slack, Google Workspace, Microsoft 365, HubSpot, Pipedrive, Windmill, Google Cloud Logging, Google Ads, Grafana, Sentry, Figma, Miro, …) through a single self-hosted MCP gateway. Built-in **PII pseudonymization** with on-prem rehydration, **two-layer policy hooks** (company + user, YAML, hot-reloaded), and a gateway-served **Context Map** so your agents answer with your company's wiring instead of guessing. Zero data at rest, BSL 1.1 license (free for up to 5 users).
+> Connect Claude, ChatGPT, Codex, Gemini, and any MCP-compatible agent to **40 enterprise tools** (Jira, GitLab, GitHub, Notion, Confluence, Slack, Google Workspace, Microsoft 365, HubSpot, Pipedrive, Windmill, Google Cloud Logging, Google Ads, Grafana, Sentry, Figma, Miro, …) through a single self-hosted MCP gateway. Built-in **PII pseudonymization** with on-prem rehydration, **two-layer policy hooks** (company + user, YAML, hot-reloaded), and a gateway-served **Context Map** so your agents answer with your company's wiring instead of guessing. Zero data at rest, BSL 1.1 license (free for up to 5 users).
 
 [Website](https://mcpgate.de) · [Docs](https://mcpgate.de/docs/) · [Demo](https://demo.mcpgate.de) · [Pricing](https://mcpgate.de/pricing/) · [Compare](https://mcpgate.de/compare/) · [Docker Hub](https://hub.docker.com/r/mcpgate/mcpgate)
 
@@ -18,7 +18,7 @@ Weeks later, the product team decides to prioritize that opportunity. The PM giv
 
 With all that context loaded, the AI drafts Jira tickets for the refinement. Hooks handle the boring parts — converting Markdown to Jira's ADF format, enforcing required fields, and blocking accidental overwrites. When the team meets, they walk through a working prototype, identify gaps, and make it actionable. Design, development, QA — everyone picks up where the last person left off, with full context.
 
-mcpgate connects your tools to your AI — Notion, Jira, GitLab, Figma, HubSpot, Pipedrive, Windmill, and many more. 39 integrations are built in, and you can add your own through OpenAPI import. Company hooks enforce your policies, while user hooks let individuals fine-tune rules directly from their AI client — hot-reloaded in seconds. mcpgate works as an MCP gateway, but also as a gate: your rules, your data. Eliminate loops between teams, safely manage context across handoffs, and let your team focus on building.
+mcpgate connects your tools to your AI — Notion, Jira, GitLab, Figma, HubSpot, Pipedrive, Windmill, and many more. 40 integrations are built in, and you can add your own through OpenAPI import. Company hooks enforce your policies, while user hooks let individuals fine-tune rules directly from their AI client — hot-reloaded in seconds. mcpgate works as an MCP gateway, but also as a gate: your rules, your data. Eliminate loops between teams, safely manage context across handoffs, and let your team focus on building.
 
 AI transformation is happening. Your tools, your data, and your context need to be connected — mcpgate is how you do it on your terms.
 
@@ -136,6 +136,7 @@ Enable a service by entering credentials in the setup wizard or `.env`. Only con
 | **Sentry** | Error tracking, issue queries, releases, statistics |
 | **Grafana** | Dashboards, Loki log search, alert history, metrics |
 | **Google Cloud Logging** | Read Cloud Logging entries and Cloud Audit Logs (who did what, when) for the GCP projects your account can access |
+| **Google Admin SDK Reports** | Google Workspace audit activities — who created, edited, moved or deleted which file, when (admin-only) |
 | **Windmill** | Trigger scripts, flows and endpoints in your Windmill instance — via Windmill's hosted MCP server |
 | **Bug & Feature Reports** | Let users file bug reports and feature requests via the agent |
 
