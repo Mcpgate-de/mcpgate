@@ -21,7 +21,7 @@ curl http://localhost:8642/health
 ```json
 {
   "status": "healthy",
-  "version": "2.0.75",
+  "version": "<image version>",
   "components": {
     "redis": {"status": "up", "latency_ms": 1.0}
   }
@@ -75,7 +75,16 @@ scrape_configs:
 
 ## Config Hot-Reload
 
-Edit config files on the volume mount, then reload without restart:
+The image ships its config files under `/app/config`. To customize one, mount your copy over it in `docker-compose.yaml`:
+
+```yaml
+    volumes:
+      - gateway-data:/app/data
+      - ./config/tool_hooks.yaml:/app/config/tool_hooks.yaml:ro
+      - ./config/access_control.yaml:/app/config/access_control.yaml:ro
+```
+
+The files in this repository's `config/` directory are the same templates that the image ships. Edit your copy, then reload without restart:
 
 ```bash
 # Reload ALL configs (extensions, hooks, access control, etc.)
@@ -97,10 +106,11 @@ curl -X POST http://localhost:8642/admin/reload \
 ```
 
 What gets reloaded:
-- `config/service_extensions/*.yaml` — YAML action definitions
-- `config/tool_hooks.yaml` — pre/post hook pipeline
+- `modules/builtin/<service>/actions.yaml` — YAML action definitions and their service hooks
+- Imported extensions in `/app/data/extensions` (or `EXTENSIONS_DATA_DIR`)
+- `config/tool_hooks.yaml` — cross-cutting pre/post hook pipeline
 - `config/access_control.yaml` — domains, guests, roles
-- API versions, project workflows, unsupported services
+- `config/api_versions.yaml` — API versions
 
 ### CI/CD Integration
 
@@ -191,25 +201,34 @@ Every log entry contains:
 |------|---------|------------------|
 | User sessions | Redis | Yes (until TTL expires) |
 | OAuth tokens | Redis (encrypted) | Yes |
-| Config files | Volume mount (`./config/`) | Yes |
-| Imported extensions | Volume (`EXTENSIONS_DATA_DIR`) | Yes (if configured) |
+| Generated secrets, wizard config | `gateway-data` volume (`/app/data/gateway.env`) | Yes |
+| Audit log (90-day retention) | `gateway-data` volume (`/app/data/audit.db`, SQLite) | Yes |
+| Imported extensions | `gateway-data` volume (`/app/data/extensions`, or `EXTENSIONS_DATA_DIR`) | Yes |
+| Config files | Baked into the image (`/app/config`), or your own mounted copies | Yes |
 | Prometheus metrics | In-memory | No (reset on restart) |
 | Logs | stdout | Depends on Docker log driver |
 
 ### Backup
 
 What to back up:
-1. `.env` — your credentials
-2. `config/` — access control, hooks, extensions
-3. Redis data (if you need session continuity)
+1. The `gateway-data` volume — generated secrets (including `ENCRYPTION_KEY`), wizard config, audit log, imported extensions
+2. `.env` and any config files you mount — if you use them
+3. Redis data — sessions and encrypted OAuth tokens
+
+Without the `ENCRYPTION_KEY` from the `gateway-data` volume (or `.env`), the stored OAuth tokens cannot be decrypted and users must reconnect their services.
 
 ```bash
-# Backup config
-tar czf config-backup-$(date +%Y%m%d).tar.gz config/ .env
+# Backup the gateway-data volume (mounted at /app/data in the mcpgate container)
+docker run --rm --volumes-from "$(docker compose ps -q mcpgate)" -v "$PWD":/backup alpine \
+  tar czf /backup/gateway-data-$(date +%Y%m%d).tar.gz -C /app/data .
 
-# Backup Redis
-docker compose exec redis redis-cli BGSAVE
-docker cp $(docker compose ps -q redis):/data/dump.rdb ./redis-backup.rdb
+# Backup .env and mounted config files, if you use them
+tar czf config-backup-$(date +%Y%m%d).tar.gz .env config/
+
+# Backup Redis (RDB snapshot and AOF files; Redis requires the password)
+docker compose exec redis redis-cli -a "${REDIS_PASSWORD:-mcpgate-default-pw}" BGSAVE
+docker run --rm --volumes-from "$(docker compose ps -q redis)" -v "$PWD":/backup alpine \
+  tar czf /backup/redis-data-$(date +%Y%m%d).tar.gz -C /data .
 ```
 
 ## Updates
@@ -230,13 +249,12 @@ docker compose logs mcpgate | head -50
 ```
 
 Common issues:
-- `CORS_ALLOWED_ORIGINS environment variable is required` — set in `.env`
-- `Invalid encryption key` — generate with: `python3 -c "import base64,os; print(base64.b64encode(os.urandom(32)).decode())"`
+- `Invalid ENCRYPTION_KEY` — the key must be base64 of 32 bytes. Generate one with: `python3 -c "import base64,secrets; print(base64.b64encode(secrets.token_bytes(32)).decode())"`
 - Redis connection failed — check `REDIS_URL` and that Redis container is running
 
 ### Service shows "Not Connected"
 
-1. Check if credentials are set in `.env`
+1. Check that the service credentials are set in the setup wizard or in `.env`
 2. Go to `/connections` and click "Connect"
 3. Complete the OAuth flow in the popup
 

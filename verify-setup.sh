@@ -94,6 +94,25 @@ check_required_env() {
   pass "$label is set"
 }
 
+# A secret the gateway generates on first start when it is unset.
+check_generated_secret() {
+  local key="$1"
+  local value
+  value="$(env_value "$key" 2>/dev/null || true)"
+
+  if [[ -z "$value" ]]; then
+    warn "$key is not set in .env (the gateway generates it on first start and keeps it in the gateway-data volume)"
+    return
+  fi
+
+  if is_placeholder_value "$value"; then
+    fail "$key still looks like a placeholder ($key=$value)"
+    return
+  fi
+
+  pass "$key is set"
+}
+
 check_optional_group() {
   local label="$1"
   shift
@@ -120,7 +139,7 @@ section "Files"
 if [[ -f "$ENV_FILE" ]]; then
   pass ".env exists"
 else
-  fail ".env is missing. Create it from .env.example first"
+  warn ".env is missing. This is fine for the zero-config start: the setup wizard handles configuration"
 fi
 
 if [[ -f "$ACCESS_CONTROL_FILE" ]]; then
@@ -137,13 +156,21 @@ fi
 
 section "Core environment"
 
-check_required_env "BASE_URL" "BASE_URL"
-check_required_env "CORS_ALLOWED_ORIGINS" "CORS_ALLOWED_ORIGINS"
-check_required_env "ADMIN_USERS" "ADMIN_USERS"
-check_required_env "COMPANY_DOMAINS" "COMPANY_DOMAINS"
-check_required_env "JWT_SECRET" "JWT_SECRET"
-check_required_env "ENCRYPTION_KEY" "ENCRYPTION_KEY"
-check_required_env "REDIS_PASSWORD" "REDIS_PASSWORD"
+if [[ -f "$ENV_FILE" ]]; then
+  check_required_env "BASE_URL" "BASE_URL"
+  if has_nonempty_env "CORS_ALLOWED_ORIGINS"; then
+    pass "CORS_ALLOWED_ORIGINS is set"
+  else
+    warn "CORS_ALLOWED_ORIGINS is not set (the gateway uses BASE_URL)"
+  fi
+  check_required_env "ADMIN_USERS" "ADMIN_USERS"
+  check_required_env "COMPANY_DOMAINS" "COMPANY_DOMAINS"
+  check_generated_secret "JWT_SECRET"
+  check_generated_secret "ENCRYPTION_KEY"
+  check_required_env "REDIS_PASSWORD" "REDIS_PASSWORD"
+else
+  warn "Skipping .env checks because .env does not exist (zero-config start)"
+fi
 
 section "Access control"
 
@@ -208,11 +235,6 @@ if has_nonempty_env "GRAFANA_URL" && has_nonempty_env "GRAFANA_API_KEY"; then
   pass "Grafana credentials are configured"
 fi
 
-if has_nonempty_env "AMPLITUDE_API_KEY" && has_nonempty_env "AMPLITUDE_SECRET_KEY"; then
-  SERVICE_COUNT=$((SERVICE_COUNT + 1))
-  pass "Amplitude credentials are configured"
-fi
-
 if has_nonempty_env "SENTRY_AUTH_TOKEN"; then
   SERVICE_COUNT=$((SERVICE_COUNT + 1))
   pass "Sentry credentials are configured"
@@ -224,18 +246,16 @@ if has_nonempty_env "METABASE_URL" && has_nonempty_env "METABASE_GOOGLE_CLIENT_I
 fi
 
 if [[ $SERVICE_COUNT -eq 0 ]]; then
-  warn "No service credentials detected yet"
+  warn "No service credentials detected in .env yet (services set up in the wizard are not visible here)"
 else
   pass "$SERVICE_COUNT service configuration block(s) detected"
 fi
 
 section "Docker / health"
 
-OAUTH_PORT="$(env_value "OAUTH_PORT" 2>/dev/null || true)"
-if [[ -z "$OAUTH_PORT" ]]; then
-  OAUTH_PORT=3001
-fi
-HEALTH_URL="http://localhost:${OAUTH_PORT}/health"
+# docker-compose.yaml publishes the container port 3001 on host port 8642.
+# Override with MCPGATE_HEALTH_URL if you changed the published port.
+HEALTH_URL="${MCPGATE_HEALTH_URL:-http://localhost:8642/health}"
 
 if command -v docker >/dev/null 2>&1; then
   pass "docker is installed"
@@ -256,18 +276,14 @@ else
 fi
 
 if command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
-  if [[ -f "$ENV_FILE" ]]; then
-    if docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" ps --status running >/dev/null 2>&1; then
-      if docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" ps --status running | grep -q mcpgate; then
-        pass "mcpgate container is running"
-      else
-        warn "docker compose stack is available, but mcpgate is not running"
-      fi
+  if docker compose -f "$COMPOSE_FILE" ps --status running >/dev/null 2>&1; then
+    if docker compose -f "$COMPOSE_FILE" ps --status running | grep -q mcpgate; then
+      pass "mcpgate container is running"
     else
-      warn "docker compose stack is not running yet"
+      warn "docker compose stack is available, but mcpgate is not running"
     fi
   else
-    warn "Skipping docker compose stack check because .env does not exist yet"
+    warn "docker compose stack is not running yet"
   fi
 fi
 

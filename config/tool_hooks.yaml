@@ -1,251 +1,221 @@
-# ==========================================================================
-# mcpgate — Hook Configuration
-# ==========================================================================
+# mcpgate AI Gateway — Tool Hook Configuration
 #
-# Hooks run before (pre) or after (post) every tool call.
-# They can block, transform, enrich, or audit AI actions.
+# Per-service hook logic has been migrated to Extension Hooks (defined inline
+# in modules/builtin/*/actions.yaml) or built into the executor.
+# See: docs/architecture/YAML_FIRST_REFACTORING.md
 #
-# HOOK TYPES:
-#   pre_hooks  — Run BEFORE the action executes.
-#                Use for: validation, blocking, confirmation, input transformation.
-#
-#   post_hooks — Run AFTER the action executes.
-#                Use for: response enrichment, notifications, audit logging.
-#
-# FIELDS:
-#   description  — Human-readable explanation (shown in admin dashboard)
-#   handler      — Python function path that implements the hook logic
-#   match        — Which tool/action triggers this hook
-#     tool_name  — Glob pattern: "slack_write_actions", "jira_*", "*_actions"
-#     params     — Optional: only trigger for specific actions
-#       action   — e.g. "create_issue", "transition_issue"
-#   order        — Execution order (lower = runs first)
-#   enabled      — true/false toggle without removing the config
-#
-# ==========================================================================
+# What remains here are the CROSS-CUTTING hooks that are not specific to any
+# single service and therefore have no natural home in a per-service action
+# definition: the runaway-loop guard (pre + post) and the PII pipeline
+# (argument rehydration, outbound-write scan, response scrub). They match on
+# tool-name globs (*_actions / *_write_actions) so they apply uniformly across
+# every service.
 
 version: 1
 
 settings:
   slow_hook_threshold_ms: 2000
 
-
 pre_hooks:
-
-  # ── Policy: Require confirmation for destructive actions ────────────────
-  #
-  # Prevents the AI from deleting files, removing pages, or making
-  # irreversible changes without explicit user confirmation.
-
-  google_destructive_confirmation:
-    description: "Require confirmation for destructive Google Workspace actions"
-    handler: "src.mcp.hooks.guards.require_explicit_confirmation_for_destructive_google_actions"
-    match:
-      tool_name: "google_workspace_write_actions"
-    order: 10
-    enabled: true
-
-  notion_destructive_confirmation:
-    description: "Require confirmation for destructive Notion actions"
-    handler: "src.mcp.hooks.guards.require_explicit_confirmation_for_destructive_notion_actions"
-    match:
-      tool_name: "notion_write_actions"
-    order: 15
-    enabled: true
-
-  slack_destructive_confirmation:
-    description: "Require confirmation for Slack write actions"
-    handler: "src.mcp.hooks.guards.require_explicit_confirmation_for_destructive_slack_actions"
-    match:
-      tool_name: "slack_write_actions"
-    order: 16
-    enabled: true
-
-
-  # ── Enrichment: Auto-convert Markdown to service-native formats ─────────
-  #
-  # AI writes Markdown — hooks convert to the format each service expects.
-  # No need to teach the AI about Jira ADF or GitLab-flavored markdown.
-
-  jira_markdown_to_adf:
-    description: "Convert markdown description/comment to ADF for Jira API v3"
-    handler: "src.mcp.hooks.jira_hooks.convert_markdown_to_adf"
-    match:
-      tool_name: "jira_write_actions"
-    enabled: true
-
-  gitlab_normalize_markdown:
-    description: "Fix literal \\n from AI clients in GitLab markdown fields"
-    handler: "src.mcp.hooks.gitlab_hooks.normalize_gitlab_markdown"
-    match:
-      tool_name: "gitlab_write_actions"
-    order: 15
-    enabled: true
-
-  slack_normalize_text:
-    description: "Fix literal \\n from AI clients in Slack text fields"
-    handler: "src.mcp.hooks.slack_hooks.normalize_slack_text"
-    match:
-      tool_name: "slack_write_actions"
-    order: 15
-    enabled: true
-
-
-  # ── Enrichment: Auto-link Jira tickets in GitLab MRs ───────────────────
-  #
-  # When the AI creates a merge request and the title contains a Jira key
-  # (e.g. PBE-123), the hook auto-appends the Jira URL to the description.
-
-  gitlab_mr_jira_reference:
-    description: "Auto-append Jira URL to MR description when ticket key detected"
-    handler: "src.mcp.hooks.gitlab_hooks.enrich_mr_with_jira_reference"
-    match:
-      tool_name: "gitlab_write_actions"
-      params:
-        action: "create_merge_request"
-    order: 50
-    enabled: true
-
-
-  # ── Policy: Guard API endpoints ─────────────────────────────────────────
-  #
-  # Restrict generic api_* actions to allowed endpoint prefixes.
-  # Prevents the AI from hitting arbitrary API endpoints.
-
-  notion_api_endpoint_guard:
-    description: "Restrict Notion api_* actions to allowed endpoint prefixes"
-    handler: "src.mcp.hooks.policy_hooks.guard_notion_api_endpoint"
-    match:
-      tool_name: "notion_*_actions"
-    order: 16
-    enabled: true
-
-  metabase_api_endpoint_guard:
-    description: "Restrict Metabase api_* endpoints to preserve read/write split"
-    handler: "src.mcp.hooks.policy_hooks.guard_metabase_api_endpoint"
-    match:
-      tool_name: "metabase_*_actions"
-    order: 17
-    enabled: true
-
-
-  # ── Enrichment: Jira issue templates ────────────────────────────────────
-  #
-  # Auto-enriches new Jira issues with project-specific description templates.
-
-  jira_description_enrichment:
-    description: "Enrich Jira issue descriptions with project-specific templates"
-    handler: "src.mcp.hooks.jira_hooks.enrich_issue_description"
-    match:
-      tool_name: "jira_write_actions"
-      params:
-        action: "create_issue"
-    order: 19
-    enabled: true
-
-
-  # ── Policy: Jira transition prerequisites ───────────────────────────────
-  #
-  # Blocks ticket transitions when workflow prerequisites are not met
-  # (e.g. comment required before moving to "Done").
-
-  jira_transition_prerequisites_guard:
-    description: "Block transition if workflow prerequisites not met"
-    handler: "src.mcp.hooks.jira_hooks.check_transition_prerequisites"
-    match:
-      tool_name: "jira_write_actions"
-      params:
-        action: "transition_issue"
-    order: 20
-    enabled: true
-
-
-post_hooks:
-
-  # ── Normalize auth responses ────────────────────────────────────────────
-  #
-  # Ensures all services return auth_required errors in the same format.
-  # Without this, each service has slightly different error shapes.
-
-  normalize_auth_required:
-    description: "Normalize auth_required payload shape for action tools"
-    handler: "src.mcp.hooks.policy_hooks.normalize_auth_required_response"
+  loop_guard:
+    description: >-
+      Cross-tool runaway-loop guard. Combines an identity cache (block
+      identical calls that previously returned empty/error) and a
+      sliding-window rate limit (catch pattern-churn loops that the
+      identity cache misses). Fires on every *_actions
+      tool; per-tool overrides live in registry annotations.loop_guard
+      (window_seconds / max_per_window / repeat_ttl / disabled).
+    handler: src.mcp.hooks.loop_guard.loop_guard_pre
+    order: 5  # earliest — block runaway loops before any other hook does work
     match:
       tool_name: "*_actions"
-    order: 10
-    enabled: true
 
-
-  # ── Cap oversized responses ─────────────────────────────────────────────
-  #
-  # Some services return huge payloads (e.g. Metabase with 10k rows).
-  # These hooks cap the response to prevent token waste and timeouts.
-
-  metabase_response_size_cap:
-    description: "Cap large Metabase row payloads"
-    handler: "src.mcp.hooks.policy_hooks.cap_metabase_response_size"
+  pii_rehydrate_arguments:
+    description: >-
+      Rewrite pseudonyms in tool arguments back to real values before the
+      tool executes. Enables the drill-down UX: AI sees contact-1, writes
+      a follow-up query referencing contact-1, tool resolves to the real
+      customer. Only rewrites fields explicitly listed in
+      services.{service}.rehydrate_arguments.{action}.fields — never
+      free-text fields where the AI might accidentally leak to humans.
+      Fires on any *_actions tool; the per-service enabled flag in the
+      PII config decides whether it actually does anything.
+    handler: src.mcp.hooks.pii_hooks.pii_rehydrate_arguments
+    order: 10  # early — before any other pre-hook that inspects arguments
     match:
-      tool_name: "metabase_read_actions"
-    order: 20
-    enabled: true
+      tool_name: "*_actions"
 
-  notion_response_size_cap:
-    description: "Cap large Notion list payloads"
-    handler: "src.mcp.hooks.policy_hooks.cap_notion_response_size"
+  pii_scrub_upstream_request:
+    description: >-
+      The request leg for a connector whose upstream is a language model.
+      The rest of this pipeline is directional and assumes the connected
+      tool may see real values — true for a CRM, false for a third party
+      running inference. Substitutes personal data out of the request body
+      using the same engine and per-user mapping as the response scrub, and
+      records which placeholders this request carried so the answer can be
+      resolved back to exactly those. Inert for every connector that does
+      not declare `meta.upstream_is_ai`. Not gated by the feature flag, the
+      per-service toggle or the cleartext bypass, and FAILS CLOSED: for
+      this connector an unexamined prompt is data leaving the house, so
+      not sending it is the safe answer.
+    handler: src.mcp.hooks.pii_upstream_ai.pii_scrub_upstream_request
+    order: 12  # after rehydrate (10) resolves the caller's own placeholders
     match:
-      tool_name: "notion_read_actions"
-    order: 21
-    enabled: true
+      tool_name: "*_actions"
 
+  pii_outbound_scan:
+    description: >-
+      F1 outbound-PII guardrail. On *_write_actions tools (jira_write,
+      slack_write, google_workspace_write/Gmail, …), scan ctx.arguments
+      for the same Layer-1 entities the response-scrubber detects. On
+      hit, abort the call with a CHOICE_REQUIRED envelope so the agent
+      can surface a yes/no prompt; user's yes re-issues the same call
+      with `pii_outbound_confirm: true` and the second call passes
+      through. This closes the asymmetric half of the protection: the
+      response scrubber keeps PII from reaching the AI, and this keeps
+      the AI from writing PII downstream.
 
-  # ── Enrichment: Jira transition hints ───────────────────────────────────
-  #
-  # Adds prerequisite hints to get_transitions responses so the AI knows
-  # what's needed before attempting a transition.
-
-  jira_transitions_prerequisites:
-    description: "Enrich transitions with prerequisite hints from workflows"
-    handler: "src.mcp.hooks.jira_hooks.enrich_transitions_with_prerequisites"
+      ON by default whenever the main PII feature is on. The Redis key
+      `pii:outbound_scan_enabled` is an opt-OUT and takes effect only
+      when it holds an explicit "false"; an absent or unreadable key
+      leaves the scan running. There is no admin API for it — the only
+      way to turn it off is a direct Redis write, which is not audited.
+    handler: src.mcp.hooks.pii_hooks.pii_outbound_scan
+    order: 15  # after rehydrate (10) so we scan the real strings
     match:
-      tool_name: "jira_read_actions"
-      params:
-        action: "get_transitions"
-    order: 50
-    enabled: true
+      tool_name: "*_write_actions"
 
-
-  # ── Notification: MR without Jira ticket ────────────────────────────────
-  #
-  # After creating a merge request, checks if a Jira ticket is referenced.
-  # If not, adds a reminder to the response so the AI links it.
-
-  # ── Cross-service automation: Desk booking → Scheduled preheating ──────
-  #
-  # When someone books a desk through Joan for tomorrow morning, this hook
-  # schedules a heating job via Home Assistant — the office zone warms up
-  # before they arrive. Cancel the booking — the scheduled job gets cancelled too.
-  # This is a cross-service post-hook: Joan → Scheduler → Home Assistant.
-
-  joan_heating_sync:
-    description: "Schedule heating jobs for Joan desk bookings (cross-service)"
-    handler: "src.mcp.hooks.joan_hooks.sync_heating_job_for_joan_writes"
+  context_memory_write_guard:
+    description: >-
+      Pre-dispatch pitfall guard (the write half of the context-memory
+      loop; the read half annotates responses in the tool-executor seam).
+      When a write call matches a pitfall note that opted into blocking
+      (block: spec in its frontmatter) and the note's mechanical check
+      passes, the call is stopped BEFORE execution and the warning handed
+      back so the agent redoes it correctly - for write traps the whole
+      value is prevention, a post-response warning arrives after the
+      damage. Hard block by design (fix + retry, no confirmed override).
+      FAIL-OPEN on any internal error or timeout: a guard that fails to
+      fire must never hold up legitimate writes. Inert unless the
+      operator enabled the Context Map service.
+    handler: src.mcp.hooks.context_memory_guard.context_memory_write_guard
+    order: 20  # after the PII outbound scan (15) - privacy consent first
     match:
-      tool_name: "joan_write_actions"
-    order: 23
-    enabled: true
+      tool_name: "*_write_actions"
 
-
-  # ── Notification: MR without Jira ticket ────────────────────────────────
-  #
-  # After creating a merge request, checks if a Jira ticket is referenced.
-  # If not, adds a reminder to the response so the AI links it.
-
-  gitlab_mr_jira_reminder:
-    description: "Remind when MR has no Jira ticket reference"
-    handler: "src.mcp.hooks.gitlab_hooks.remind_jira_link"
+post_hooks:
+  # windmill_rls_guidance is service-specific but lives here because
+  # mcp_proxy executor tools never pass through the YAML executor that
+  # runs extension hooks — this layer is their only pre/post seam.
+  windmill_rls_guidance:
+    description: >-
+      Translate Windmill's opaque path-ownership error ("new row violates
+      row-level security policy") into actionable guidance for the AI
+      agent: the chosen script/flow path is not writable, write under
+      u/<own-username>/… (derived from the user's email) or a folder with
+      granted write access. Without this, agents misread the error as an
+      OAuth/token problem and loop through reconnects.
+    handler: src.mcp.hooks.windmill_hooks.windmill_rls_guidance
+    order: 50  # after loop_guard_record (raw outcome), before pii_scrub
     match:
-      tool_name: "gitlab_write_actions"
-      params:
-        action: "create_merge_request"
-    order: 50
-    enabled: true
+      tool_name: "windmill_mcp_*"
+
+  config_failure_notice:
+    description: >-
+      Report an unattended caller's PERMANENT configuration failure to the
+      maintainer. missing_scope and DELEGATION_SCOPE cannot change without a
+      configuration change, so the first call already decided the outcome for
+      every following one. Without this, an unattended automation repeats a
+      call that cannot succeed and nobody is told.
+      Cross-cutting because the condition is about the CALLER, not the service:
+      any *_actions tool can produce it. Debounced per (automation, class,
+      service); never alters the result.
+    handler: src.mcp.hooks.config_failure_notice.config_failure_notice
+    order: 60  # after loop_guard_record sees the raw outcome, before pii_scrub
+    match:
+      tool_name: "*_actions"
+
+  loop_guard_record:
+    description: >-
+      Companion to the loop_guard pre-hook. Records dead-end outcomes
+      (success=false, count=0, empty result lists) so that the next
+      identical call is suppressed. Successful, non-empty results clear
+      the cache entry so the user can re-run the same query after state
+      changes.
+    handler: src.mcp.hooks.loop_guard.loop_guard_post
+    order: 5  # before pii_scrub so we record raw outcomes, not scrubbed ones
+    match:
+      tool_name: "*_actions"
+
+  pii_rehydrate_upstream_answer:
+    description: >-
+      The return leg of the same inversion. Resolves the placeholders THIS
+      request sent, and only those: a placeholder the model invented or
+      carried over from elsewhere is left alone, so the response leg cannot
+      be used to read the mapping store. Runs before pii_scrub_response, so
+      what the caller finally sees is decided by the ordinary pipeline and
+      is unchanged by this pair. Fails open — by this point the prompt has
+      already gone out substituted, and an unresolved placeholder is
+      visible and harmless.
+    handler: src.mcp.hooks.pii_upstream_ai.pii_rehydrate_upstream_answer
+    order: 900  # before pii_scrub_response (999) has the last word
+    match:
+      tool_name: "*_actions"
+
+  metabase_credential_withhold:
+    description: >-
+      Withhold the columns and values of a Metabase result that may carry a
+      credential, whichever executor produced it. The curated query actions
+      withhold inside their own builder; this owns every other shape — the
+      raw dataset of the api_* passthroughs and the long-tail actions (which
+      never enter MetabaseTools), field and parameter values, and exports.
+      Decides on the column name, on Metabase's own `sensitive` declaration,
+      on the fields an MBQL query reads, and on the compiled SQL, so an alias
+      does not release a column. Fails CLOSED: on an internal error the result
+      is withheld, because the runner would otherwise ship it unchecked.
+    handler: src.mcp.hooks.metabase_credentials.metabase_credential_withhold
+    order: 950  # before pii_scrub_response (999) and secret_shape_scan (1000)
+    match:
+      tool_name: "metabase_*"
+
+  pii_scrub_response:
+    description: >-
+      Scrub customer PII from tool responses before they reach the AI model.
+      Fires on any *_actions tool; the per-service enabled flag in the
+      PII config (services.{service}.enabled, runtime-toggleable via
+      /admin/api/pii-sanitization) decides whether it actually does
+      anything. Every service listed in the YAML ships enabled, and a
+      service the YAML does not list is scrubbed as well — listing one
+      refines its allowlist and rehydration, it does not switch it on.
+      An admin turns a service OFF. See docs/concept/pii-sanitization-plan.md.
+    handler: src.mcp.hooks.pii_hooks.pii_scrub_response
+    order: 999  # must be last — no other hook may re-inject PII after this
+    match:
+      tool_name: "*_actions"
+
+  secret_shape_scan:
+    description: >-
+      Replace a value that matches a known credential shape with the shape's
+      name, before the result reaches the model. The third and last of the
+      three secret instruments: the connector definitions refuse a field NAMED
+      like a credential, the response builder withholds a variable store's
+      value, and this one reads the value itself — so it is the only one that
+      sees a credential inside a file, an issue comment, a log line or a
+      search hit, where nobody declared anything.
+
+      Its own gate, not the PII one. `pii_scrub_response` has five ways to
+      return before it scrubs (global flag, per-service flag, an authorised
+      cleartext bypass, a PII-free read, an excluded tool) and each is a
+      decision about PERSONAL data. An operator who turned PII scrubbing off
+      for a service said nothing about credentials. Governed instead by
+      config/secret_withholding.yaml, which is armed by default.
+
+      Matches every tool, not only *_actions: a credential is a credential
+      whichever surface returned it. The shipped actions that MINT one are
+      exempt, read from the catalogue rather than listed here — so the count
+      follows the catalogue and is not repeated in this sentence, where it
+      went stale at 64 while the catalogue held 22.
+    handler: src.mcp.hooks.secret_shapes.secret_shape_scan
+    order: 1000  # after the PII scrub; nothing runs after this
+    match:
+      tool_name: "*"

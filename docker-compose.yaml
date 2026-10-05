@@ -34,9 +34,23 @@ services:
       # Persistent data — auto-generated secrets, wizard config, extensions
       - gateway-data:/app/data
 
+  # Redis holds authentication state (OAuth tokens, sessions, magic-link
+  # JTIs, OIDC user records) next to the request cache.
+  #   * noeviction — when memory is full, Redis refuses new writes instead of
+  #     evicting keys. An eviction policy would silently drop live OAuth
+  #     tokens and sessions. Raise --maxmemory if you hit the limit.
+  #   * appendonly — on restart Redis replays the AOF, so recently issued
+  #     tokens and sessions survive and users do not have to sign in again.
   redis:
-    image: redis:7-alpine
-    command: redis-server --requirepass ${REDIS_PASSWORD:-mcpgate-default-pw} --appendonly yes --maxmemory 128mb --maxmemory-policy allkeys-lru
+    image: redis:8-alpine
+    command: >-
+      redis-server
+      --requirepass ${REDIS_PASSWORD:-mcpgate-default-pw}
+      --maxmemory 512mb
+      --maxmemory-policy noeviction
+      --save 60 1
+      --appendonly yes
+      --appendfsync everysec
     volumes:
       - redis-data:/data
     healthcheck:
