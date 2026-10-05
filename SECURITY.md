@@ -6,7 +6,7 @@ If you discover a security issue in mcpgate, please report it privately. Do **no
 
 **Preferred channels:**
 
-- **Email:** [hello@mcpgate.de](mailto:hello@mcpgate.de)
+- **Email:** [security@mcpgate.de](mailto:security@mcpgate.de) (also in [security.txt](https://mcpgate.de/.well-known/security.txt))
 - **In-app:** Send a security report directly via your mcpgate instance — feedback routes through the mcpgate-backend feedback relay (anonymized, no PII stored).
 
 We aim to acknowledge reports within 2 business days and to provide a remediation plan within 10 business days for confirmed vulnerabilities.
