@@ -1,6 +1,6 @@
 # mcpgate — Privacy-First Self-Hosted MCP Gateway
 
-> Connect Claude, ChatGPT, Codex, Gemini, and any MCP-compatible agent to **40 enterprise tools** (Jira, GitLab, GitHub, Notion, Confluence, Slack, Google Workspace, Microsoft 365, HubSpot, Pipedrive, Windmill, Google Cloud Logging, Google Ads, Grafana, Sentry, Figma, Miro, …) through a single self-hosted MCP gateway. Built-in **PII pseudonymization** with on-prem rehydration, **two-layer policy hooks** (company + user, YAML, hot-reloaded), and a gateway-served **Context Map** so your agents answer with your company's wiring instead of guessing. Zero data at rest, BSL 1.1 license (free for up to 5 users).
+> Connect Claude, ChatGPT, Codex, Gemini, and any MCP-compatible agent to **47 enterprise tools** (Jira, GitLab, GitHub, Notion, Confluence, Slack, Google Workspace, Microsoft 365, HubSpot, Pipedrive, Windmill, Google Cloud Logging, Google Ads, Grafana, Sentry, Figma, Miro, …) through a single self-hosted MCP gateway. Built-in **PII pseudonymization** with on-prem rehydration, **two-layer policy hooks** (company + user, YAML, hot-reloaded), and a gateway-served **Context Map** so your agents answer with your company's wiring instead of guessing. No tool payloads are stored, BSL 1.1 license ([free in production for up to 5 users](COMMERCIAL.md)).
 
 [Website](https://mcpgate.de) · [Docs](https://mcpgate.de/docs/) · [Demo](https://demo.mcpgate.de) · [Pricing](https://mcpgate.de/pricing/) · [Compare](https://mcpgate.de/compare/) · [Docker Hub](https://hub.docker.com/r/mcpgate/mcpgate)
 
@@ -18,7 +18,7 @@ Weeks later, the product team decides to prioritize that opportunity. The PM giv
 
 With all that context loaded, the AI drafts Jira tickets for the refinement. Hooks handle the boring parts — converting Markdown to Jira's ADF format, enforcing required fields, and blocking accidental overwrites. When the team meets, they walk through a working prototype, identify gaps, and make it actionable. Design, development, QA — everyone picks up where the last person left off, with full context.
 
-mcpgate connects your tools to your AI — Notion, Jira, GitLab, Figma, HubSpot, Pipedrive, Windmill, and many more. 40 integrations are built in, and you can add your own through OpenAPI import. Company hooks enforce your policies, while user hooks let individuals fine-tune rules directly from their AI client — hot-reloaded in seconds. mcpgate works as an MCP gateway, but also as a gate: your rules, your data. Eliminate loops between teams, safely manage context across handoffs, and let your team focus on building.
+mcpgate connects your tools to your AI — Notion, Jira, GitLab, Figma, HubSpot, Pipedrive, Windmill, and many more. 47 integrations are built in, and you can add your own through OpenAPI import. Company hooks enforce your policies, while user hooks let individuals fine-tune rules directly from their AI client — hot-reloaded in seconds. mcpgate works as an MCP gateway, but also as a gate: your rules, your data. Eliminate loops between teams, safely manage context across handoffs, and let your team focus on building.
 
 AI transformation is happening. Your tools, your data, and your context need to be connected — mcpgate is how you do it on your terms.
 
@@ -31,11 +31,11 @@ open http://localhost:8642
 
 That's it. No `.env` file needed. The setup wizard walks you through login, branding, team, and connecting services. Secrets are auto-generated on first start.
 
-> **New here?** Clone the repo to get the pre-configured `docker-compose.yml`:
+> **New here?** Clone the repo to get the pre-configured `docker-compose.yaml`:
 > ```bash
 > git clone https://gitlab.com/mcpgate/mcpgate.git && cd mcpgate
 > ```
-> Or copy the `docker-compose.yml` from [mcpgate.de/docs/quickstart](https://mcpgate.de/docs/quickstart).
+> Or copy the `docker-compose.yaml` from [mcpgate.de/docs/quickstart](https://mcpgate.de/docs/quickstart).
 
 > **Already have an `.env`?** It still works — environment variables take priority over wizard config.
 
@@ -132,6 +132,7 @@ Enable a service by entering credentials in the setup wizard or `.env`. Only con
 | **Jira** | Create/update issues, transitions, worklogs, sprints, comments |
 | **GitLab** | Issues, merge requests, pipelines, deployments, CI/CD variables, code search |
 | **GitHub** | Issues, pull requests, releases, code search across repositories |
+| **AWS (SES)** | SES delivery, suppression list and message insights, CloudWatch metrics, SNS topics (read-only) |
 | **Jenkins** | Builds, pipelines, job triggers, log reading |
 | **Sentry** | Error tracking, issue queries, releases, statistics |
 | **Grafana** | Dashboards, Loki log search, alert history, metrics |
@@ -139,6 +140,7 @@ Enable a service by entering credentials in the setup wizard or `.env`. Only con
 | **Google Admin SDK Reports** | Google Workspace audit activities — who created, edited, moved or deleted which file, when (admin-only) |
 | **Windmill** | Trigger scripts, flows and endpoints in your Windmill instance — via Windmill's hosted MCP server |
 | **Bug & Feature Reports** | Let users file bug reports and feature requests via the agent |
+| **AI Models** | Language-model completions for automations — any OpenAI-compatible endpoint, hosted or local |
 
 ### Marketing, SEO & Analytics
 
@@ -148,11 +150,14 @@ Enable a service by entering credentials in the setup wizard or `.env`. Only con
 | **Sistrix** | Visibility Index, keyword rankings, SERP changes, competitor backlinks |
 | **BigQuery** | SQL queries against your data warehouse (Adjust, GA exports, business reports) |
 | **Google Ads** | Accounts, campaigns, ad groups, ad performance and reporting (read-only) |
+| **Apple Ads** | App Store and Apple Maps ad campaigns, ad groups, keywords, creatives and reports |
 | **Google Analytics** | GA4 traffic, engagement and conversion reports, realtime data |
 | **Google Tag Manager** | Containers, workspaces, tags, triggers, variables — publishing stays a human step in the GTM UI |
 | **Bing Webmaster** | Bing/Copilot search performance, query & page stats, crawl/index data |
 | **Amplitude** | Charts, active users, cohorts, experiments, session replays |
 | **Metabase** | BI dashboards, native SQL, schema exploration |
+| **Power BI** | Workspaces, semantic models, DAX queries, refreshes and schedules |
+| **Power BI MCP** | Microsoft's Fabric IQ MCP server — find reports and semantic models, query them with DAX (read-only) |
 
 ### Sales & CRM
 
@@ -179,6 +184,7 @@ Enable a service by entering credentials in the setup wizard or `.env`. Only con
 | **Transifex** | Translation projects, strings, languages, reviews |
 | **Home Assistant** | Office sensors, heating control |
 | **Joan** | Desk & meeting room booking |
+| **Apple Business** | Organisation devices, Managed Apple Accounts, Blueprints, device management services |
 
 ### App Stores
 
@@ -188,6 +194,7 @@ Enable a service by entering credentials in the setup wizard or `.env`. Only con
 | **Google Play** | Android app reviews, ratings, release track management |
 | **Google Play Vitals** | Android crash rate, ANR rate, errors and performance metrics (daily) |
 | **Google Play Reports** | Play Console download reports — installs, store performance, acquisitions (CSV) |
+| **AppFollow** | Store rankings, keyword research, reviews and ratings across iOS and Android |
 
 Plus self-management tools (gateway config, issue reporting) and OpenAPI import for anything else. See [`docs/services/`](https://mcpgate.de/docs/services/) for example questions a customer can ask their agent per service.
 
@@ -212,7 +219,7 @@ Built-in safeguards that don't need configuration:
 
 - **PII Sanitization with Pseudonym Rehydration** — sensitive data (emails, names, phone numbers) is replaced with stable pseudonyms before it reaches the LLM, then rehydrated when the agent calls a tool. Mapping stays on-prem, encrypted at rest, and expires after 24h. Preserves write-flows that simple redaction would break.
 - **Write-Safety Defaults** — destructive actions (delete, archive, dashboard PUTs) require explicit `confirmed=true` or `force=true`. Response size caps prevent accidental mass operations.
-- **Stores nothing in transit** — mcpgate is a pass-through. Tool actions are auditable in your own tools (Jira, GitLab, Slack) where they happen. The only data we hold is the encrypted pseudonym mapping for PII rehydration, with a 24-hour TTL.
+- **No tool payloads stored** — mcpgate passes tool calls through and does not store their content. It keeps two things on your own infrastructure: an audit log of gateway events (SQLite in `/app/data`, user and IP identifiers hashed, 90-day retention) and the encrypted pseudonym mapping for PII rehydration (24-hour TTL in Redis).
 - **Highly available** — runs as multiple replicas behind your load balancer. Config changes propagate to all replicas in seconds.
 
 ## How mcpgate compares
@@ -223,12 +230,12 @@ A quick read against three named neighbors (figures verified 2026-05-17 via GitH
 
 | | mcpgate | [Obot](https://github.com/obot-platform/obot) | [Docker MCP Gateway](https://github.com/docker/mcp-gateway) | [IBM ContextForge](https://github.com/IBM/mcp-context-forge) |
 |---|---|---|---|---|
-| License | BSL 1.1 (free ≤5 users) | MIT | MIT | Apache-2.0 |
-| Stage of life (stars / forks, 2026-05-17) | public since 2026-03, 1 reference customer | 777 / 164 | 1,392 / 244 | 3,719 / 661 |
+| License | BSL 1.1 (free in production ≤5 users; Apache 2.0 four years after each release) | MIT | MIT | Apache-2.0 |
+| Stage of life (stars / forks, 2026-05-17) | public since March 2026 | 777 / 164 | 1,392 / 244 | 3,719 / 661 |
 | Self-hosted | ✅ | ✅ | ✅ (Docker CLI plugin) | ✅ |
 | **PII pseudonymization with rehydration** | ✅ built-in | ❌ (not shipped — could be added on the OSS code) | ❌ (out of scope) | ❌ (not in README) |
 | **User-level policy hooks** | ✅ YAML, hot-reloaded | ❌ (operator RBAC) | ❌ (profile allowlists) | RBAC via JWT scopes (operator) |
-| Built-in service integrations | 29 (hand-written native YAML + official-MCP proxies) | curated set | composes from Docker MCP catalog (~200) | federated MCP / A2A / REST / gRPC |
+| Built-in service integrations | 47 (hand-written native YAML + official-MCP proxies) | curated set | composes from Docker MCP catalog (~200) | federated MCP / A2A / REST / gRPC |
 | OAuth / DCR / PKCE / static-bearer / no-auth | unified | OAuth 2.1 | depends per server in catalog | unified, JWT-scoped |
 | Kubernetes-native | possible, no official Helm chart | ✅ Helm chart | Docker-only (CE / Desktop) | ✅ + Helm + AWS / Azure / GCP / IBM Cloud / OpenShift |
 
@@ -243,7 +250,7 @@ Where another project is the better fit for your team, we say so.
 
 ## Hooks
 
-Policy and enrichment hooks in `config/tool_hooks.yaml`:
+Cross-cutting hooks (loop guard, PII pipeline, secret scan) live in `config/tool_hooks.yaml`. Service-specific hooks live inline in each service's action definitions (`modules/builtin/<service>/actions.yaml` in the image). Hook types:
 
 - **Policy** (validation): destructive action confirmation, API endpoint guards, transition checks
 - **Enrichment** (mutation): Markdown → ADF conversion, text normalization, auto-linking, templates
@@ -294,4 +301,4 @@ Contact hello@mcpgate.de
 
 Business Source License 1.1. See [LICENSE](LICENSE).
 
-Personal and internal business use permitted, including production. Offering mcpgate as a hosted service requires a commercial license. See [COMMERCIAL.md](COMMERCIAL.md).
+Free in production for up to 5 users, for your own internal business operations or personal use. Development, testing and evaluation are free with any number of users. Production use with more than 5 users, and offering mcpgate as a hosted service, managed service or commercial product, require a commercial license. Each release converts to Apache 2.0 four years after its publication. See [COMMERCIAL.md](COMMERCIAL.md).
