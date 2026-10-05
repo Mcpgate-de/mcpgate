@@ -15,7 +15,7 @@ services:
     issuer_url: https://accounts.google.com
     redirect_uri_template: "{BASE_URL}/auth/callback"
     credential_env:
-      - OIDC_ISSUER_URL
+      - OIDC_PROVIDER
       - OIDC_CLIENT_ID
       - OIDC_CLIENT_SECRET
     steps:
@@ -23,7 +23,7 @@ services:
       - Create an OAuth client of type "Web application".
       - Set the authorized redirect URI to {BASE_URL}/auth/callback.
       - Copy the client ID and client secret into OIDC_CLIENT_ID and OIDC_CLIENT_SECRET.
-      - Set OIDC_ISSUER_URL to https://accounts.google.com.
+      - Set OIDC_PROVIDER to google.
     notes:
       - Endpoints are auto-discovered via OIDC discovery.
       - This is only for logging into mcpgate, not for Google Workspace service access.
@@ -36,7 +36,8 @@ services:
     issuer_url_template: "https://login.microsoftonline.com/{TENANT_ID}/v2.0"
     redirect_uri_template: "{BASE_URL}/auth/callback"
     credential_env:
-      - OIDC_ISSUER_URL
+      - OIDC_PROVIDER
+      - OIDC_TENANT_ID
       - OIDC_CLIENT_ID
       - OIDC_CLIENT_SECRET
     steps:
@@ -44,7 +45,7 @@ services:
       - Create an app registration.
       - Add a web redirect URI pointing to {BASE_URL}/auth/callback.
       - Copy the application client ID and client secret into OIDC_CLIENT_ID and OIDC_CLIENT_SECRET.
-      - Set OIDC_ISSUER_URL to https://login.microsoftonline.com/{TENANT_ID}/v2.0.
+      - Set OIDC_PROVIDER to microsoft and OIDC_TENANT_ID to the directory (tenant) ID.
     notes:
       - Claude should ask for the tenant ID if Microsoft SSO is selected.
       - Endpoints are auto-discovered via OIDC discovery.
