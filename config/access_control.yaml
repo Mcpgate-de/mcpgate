@@ -30,30 +30,34 @@ guests: []
 #    invited_by: "admin@example.com"
 #    note: "External consultant"
 
-# Role → service access mapping
+# Role → service access mapping.
+#
+# `services: "*"` means unrestricted — the role sees every service the
+# gateway has registered. That is the sensible default for `internal`
+# (workforce of the operator's organisation): a fixed list silently
+# falls behind whenever a new service lands in the codebase, hiding
+# things from people who should see them. Restrict only when you have
+# a reason to.
+#
+# `external` and `viewer` keep an explicit whitelist on purpose — the
+# whole point of those roles is "doesn't see everything".
 roles:
   internal:
-    allowed_services:
-      - google_workspace
-      - jira
-      - gitlab
-      - slack
-      - notion
-      - figma
-      - grafana
-      - wordpress
-      - amplitude
-      - sentry
+    services: "*"
   external:
-    allowed_services:
+    services:
       - jira
+      - confluence
       - gitlab
       - slack
       - notion
+      - notion_mcp
       - figma
+      - figma_mcp
   viewer:
-    allowed_services:
+    services:
       - jira
+      - confluence
       - gitlab
 
 # Domain mappings (optional) — map alternative domains to primary
