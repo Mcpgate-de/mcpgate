@@ -4,11 +4,16 @@ Parameters
 
 Licensor: Andreas Kruse
 
-Licensed Work: The quickstart materials and related mcpgate AI Gateway distribution materials made available in this repository.
+Licensed Work: The mcpgate AI Gateway software, including the container image mcpgate/mcpgate and the distribution materials accompanying it, in the version with which this License is distributed.
+The Licensed Work is (c) 2026 Andreas Kruse.
 
-Additional Use Grant: You may make production use of the Licensed Work for your own internal business operations or personal use, provided that you do not offer the Licensed Work itself to third parties as a hosted service, commercial product, or managed service.
+Additional Use Grant: You may make production use of the Licensed Work, provided that (a) the use is for your own internal business operations or personal use, (b) no more than five (5) Users use the Licensed Work in any period of thirty (30) consecutive days, and (c) you do not offer the Licensed Work, or a product or service that embeds it, to third parties as a hosted service, managed service or commercial product.
 
-Change Date: 2029-03-23
+"User" means a natural person who signs in to the Licensed Work, counted once per period regardless of the number of sessions, devices, tokens or AI agents acting on that person's behalf. A service account or AI agent that is not acting on behalf of a signed-in natural person counts as one User.
+
+Production use beyond this grant requires a commercial license from the Licensor (https://mcpgate.de/pricing/).
+
+Change Date: Four years from the date the Licensed Work is published.
 
 Change License: Apache-2.0
 
