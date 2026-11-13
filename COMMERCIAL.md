@@ -14,6 +14,9 @@ count. A service account or AI agent that does not act for a signed-in user coun
 You need a commercial license from the Licensor to:
 
 - Use mcpgate in production with more than five (5) Users
+- Use in production a feature that https://mcpgate.de/pricing/ lists only for a plan you have
+  not licensed. Every installation runs every feature; the plan sets which ones you use in
+  production
 - Offer mcpgate, or a product or service that embeds it, to third parties as a hosted service,
   managed service or commercial product
 - Use mcpgate in OEM, reseller, redistribution or white-label arrangements

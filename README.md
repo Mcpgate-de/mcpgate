@@ -303,4 +303,4 @@ Contact hello@mcpgate.de
 
 Business Source License 1.1. See [LICENSE](LICENSE).
 
-Free in production for up to 5 users, for your own internal business operations or personal use. Development, testing and evaluation are free with any number of users. Production use with more than 5 users, and offering mcpgate as a hosted service, managed service or commercial product, require a commercial license. Each release converts to Apache 2.0 four years after its publication. See [COMMERCIAL.md](COMMERCIAL.md).
+Free in production for up to 5 users, for your own internal business operations or personal use. Development, testing and evaluation are free with any number of users. Production use with more than 5 users, production use of a feature that the [pricing page](https://mcpgate.de/pricing/) lists only for a plan you have not licensed, and offering mcpgate as a hosted service, managed service or commercial product, require a commercial license. Every installation runs every feature, so you can evaluate all of them. Each release converts to Apache 2.0 four years after its publication. See [COMMERCIAL.md](COMMERCIAL.md).
